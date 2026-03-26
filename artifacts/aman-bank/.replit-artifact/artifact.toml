@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Aman Bank"
+version = "1.0.0"
+id = "artifacts/aman-bank"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26039
+
+[services.development]
+run = "pnpm --filter @workspace/aman-bank run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/aman-bank", "run", "build" ]
+publicDir = "artifacts/aman-bank/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26039"
+BASE_PATH = "/"
