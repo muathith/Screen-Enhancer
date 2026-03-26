@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
-import { ArrowRight } from "lucide-react";
+import { useNavigate } from "@/components/TransitionContext";
 
 const BANK_BLUE = "#1a3a7a";
 
@@ -13,7 +12,7 @@ function FieldError({ msg }: { msg: string }) {
 }
 
 export default function RegisterPage() {
-  const [, navigate] = useLocation();
+  const { navigateTo, navigateBack } = useNavigate();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState<{ fullName?: string; phone?: string }>({});
@@ -21,16 +20,10 @@ export default function RegisterPage() {
 
   function validate(name: string, ph: string) {
     const errs: { fullName?: string; phone?: string } = {};
-    if (!name.trim()) {
-      errs.fullName = "الاسم الكامل مطلوب";
-    } else if (name.trim().length < 3) {
-      errs.fullName = "الاسم يجب أن يكون 3 أحرف على الأقل";
-    }
-    if (!ph.trim()) {
-      errs.phone = "رقم الهاتف مطلوب";
-    } else if (!/^[0-9+\s\-]{7,15}$/.test(ph.trim())) {
-      errs.phone = "أدخل رقم هاتف صحيح";
-    }
+    if (!name.trim()) errs.fullName = "الاسم الكامل مطلوب";
+    else if (name.trim().length < 3) errs.fullName = "الاسم يجب أن يكون 3 أحرف على الأقل";
+    if (!ph.trim()) errs.phone = "رقم الهاتف مطلوب";
+    else if (!/^[0-9+\s\-]{7,15}$/.test(ph.trim())) errs.phone = "أدخل رقم هاتف صحيح";
     return errs;
   }
 
@@ -45,18 +38,20 @@ export default function RegisterPage() {
     setErrors(errs);
     setTouched({ fullName: true, phone: true });
     if (Object.keys(errs).length === 0) {
-      navigate("/login");
+      navigateTo("/login");
     }
   };
 
-  const isValid = !validate(fullName, phone).fullName && !validate(fullName, phone).phone && fullName && phone;
+  const isValid = Object.keys(validate(fullName, phone)).length === 0 && !!fullName && !!phone;
 
   return (
     <div dir="rtl" className="min-h-screen bg-white" style={{ fontFamily: "'Cairo', sans-serif", maxWidth: 480, margin: "0 auto" }}>
       {/* Navbar */}
       <nav className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
-        <button onClick={() => navigate(-1)} className="text-gray-600 p-1">
-          <ArrowRight className="w-5 h-5" />
+        <button onClick={() => navigateBack()} className="text-gray-600 p-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
         </button>
         <div className="text-sm font-bold" style={{ color: BANK_BLUE }}>إنشاء حساب</div>
         <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 36 }} />
@@ -96,9 +91,8 @@ export default function RegisterPage() {
       </div>
 
       {/* Form */}
-      <div className="px-5 pt-4 pb-6 bg-white">
+      <div className="px-5 pt-4 pb-6">
         <form onSubmit={handleSubmit} noValidate>
-          {/* Full Name */}
           <div className="mb-6">
             <label className="block text-xs font-bold text-right mb-1.5" style={{ color: BANK_BLUE }}>
               الاسم الكامل <span style={{ color: "#dc2626" }}>*</span>
@@ -106,23 +100,15 @@ export default function RegisterPage() {
             <input
               type="text"
               value={fullName}
-              onChange={e => {
-                setFullName(e.target.value);
-                if (touched.fullName) setErrors(validate(e.target.value, phone));
-              }}
+              onChange={e => { setFullName(e.target.value); if (touched.fullName) setErrors(validate(e.target.value, phone)); }}
               onBlur={() => handleBlur("fullName")}
               placeholder="أدخل اسمك الكامل"
               className="w-full text-right text-sm py-2 outline-none placeholder-gray-400 transition-all"
-              style={{
-                borderBottom: `1.5px solid ${touched.fullName && errors.fullName ? "#dc2626" : fullName ? BANK_BLUE : "#d1d5db"}`,
-                background: "transparent",
-                color: "#1a202c",
-              }}
+              style={{ borderBottom: `1.5px solid ${touched.fullName && errors.fullName ? "#dc2626" : fullName ? BANK_BLUE : "#d1d5db"}`, background: "transparent", color: "#1a202c" }}
             />
             {touched.fullName && errors.fullName && <FieldError msg={errors.fullName} />}
           </div>
 
-          {/* Phone */}
           <div className="mb-6">
             <label className="block text-xs font-bold text-right mb-1.5" style={{ color: BANK_BLUE }}>
               رقم الهاتف <span style={{ color: "#dc2626" }}>*</span>
@@ -130,24 +116,16 @@ export default function RegisterPage() {
             <input
               type="tel"
               value={phone}
-              onChange={e => {
-                setPhone(e.target.value);
-                if (touched.phone) setErrors(validate(fullName, e.target.value));
-              }}
+              onChange={e => { setPhone(e.target.value); if (touched.phone) setErrors(validate(fullName, e.target.value)); }}
               onBlur={() => handleBlur("phone")}
               placeholder="09XXXXXXXX"
               className="w-full text-right text-sm py-2 outline-none placeholder-gray-400 transition-all"
-              style={{
-                borderBottom: `1.5px solid ${touched.phone && errors.phone ? "#dc2626" : phone ? BANK_BLUE : "#d1d5db"}`,
-                background: "transparent",
-                color: "#1a202c",
-              }}
+              style={{ borderBottom: `1.5px solid ${touched.phone && errors.phone ? "#dc2626" : phone ? BANK_BLUE : "#d1d5db"}`, background: "transparent", color: "#1a202c" }}
               dir="ltr"
             />
             {touched.phone && errors.phone && <FieldError msg={errors.phone} />}
           </div>
 
-          {/* Info box */}
           <div
             className="rounded-lg p-4 mb-6 text-right"
             style={{ background: "#f0f7ff", border: "1px solid #c7d9f7" }}
@@ -157,16 +135,11 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          {/* Submit */}
           <div className="flex justify-center">
             <button
               type="submit"
               className="px-16 py-3 rounded font-bold text-white text-sm transition-all"
-              style={{
-                background: isValid ? BANK_BLUE : "#9eb0d4",
-                minWidth: 200,
-                cursor: isValid ? "pointer" : "not-allowed",
-              }}
+              style={{ background: isValid ? BANK_BLUE : "#9eb0d4", minWidth: 200, cursor: isValid ? "pointer" : "not-allowed" }}
             >
               متابعة
             </button>
@@ -174,19 +147,13 @@ export default function RegisterPage() {
 
           <div className="text-center mt-4">
             <span className="text-xs text-gray-500">لديك حساب؟ </span>
-            <button
-              type="button"
-              className="text-xs font-bold"
-              style={{ color: BANK_BLUE }}
-              onClick={() => navigate("/login")}
-            >
+            <button type="button" className="text-xs font-bold" style={{ color: BANK_BLUE }} onClick={() => navigateTo("/login")}>
               سجل الدخول
             </button>
           </div>
         </form>
       </div>
 
-      {/* Footer */}
       <div className="px-5 py-3 text-center border-t border-gray-100">
         <p className="text-gray-400 text-xs">© 2019 مصرف الأمان — جميع الحقوق محفوظة</p>
       </div>

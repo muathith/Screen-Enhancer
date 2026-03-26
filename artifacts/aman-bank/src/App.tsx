@@ -7,6 +7,7 @@ import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import OtpPage from "@/pages/otp";
+import { TransitionProvider } from "@/components/TransitionContext";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +28,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
+          <TransitionProvider>
+            <Router />
+          </TransitionProvider>
         </WouterRouter>
         <Toaster />
       </TooltipProvider>

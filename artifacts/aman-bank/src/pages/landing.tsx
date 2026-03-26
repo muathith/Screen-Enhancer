@@ -1,4 +1,4 @@
-import { useLocation } from "wouter";
+import { useNavigate } from "@/components/TransitionContext";
 
 const BANK_BLUE = "#1a3a7a";
 const GOLD = "#c8970a";
@@ -12,49 +12,12 @@ function StarIcon() {
   );
 }
 
-function TrophyIcon({ size = 40 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" width={size} height={size}>
-      <rect x="20" y="48" width="24" height="6" rx="2" fill="#c8970a" />
-      <rect x="24" y="42" width="16" height="8" rx="1" fill="#c8970a" />
-      <path d="M16 8h32v20a16 16 0 01-32 0V8z" fill="#f5d06e" />
-      <path d="M16 8v16a6 6 0 01-6-6v-6a4 4 0 014-4h2z" fill="#c8970a" />
-      <path d="M48 8v16a6 6 0 006-6v-6a4 4 0 00-4-4h-2z" fill="#c8970a" />
-      <path d="M24 20a8 8 0 008 8 8 8 0 008-8" stroke="#c8970a" strokeWidth="1.5" fill="none" />
-      <circle cx="32" cy="20" r="4" fill="#c8970a" />
-    </svg>
-  );
-}
-
-function GiftIcon({ size = 36 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" width={size} height={size}>
-      <rect x="10" y="28" width="44" height="28" rx="3" fill="#e8f0fe" />
-      <rect x="8" y="20" width="48" height="12" rx="2" fill="#c7d7f9" />
-      <rect x="28" y="20" width="8" height="36" fill="#a0b9f7" />
-      <path d="M32 20c0 0-8-2-8-8a8 8 0 0116 0c0 6-8 8-8 8z" fill="#7aa2f5" />
-      <circle cx="32" cy="12" r="4" fill="#5580eb" />
-    </svg>
-  );
-}
-
-function PhoneIcon({ size = 32 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 40 72" fill="none" width={size} height={size}>
-      <rect x="2" y="2" width="36" height="68" rx="6" fill="#1a3a7a" />
-      <rect x="6" y="8" width="28" height="50" rx="3" fill="#e8f0fe" />
-      <circle cx="20" cy="63" r="3" fill="#a0b9f7" />
-      <rect x="14" y="4" width="12" height="2" rx="1" fill="#4a6fa5" />
-    </svg>
-  );
-}
-
 const prizes = [
   {
     rank: "الجائزة الأولى",
     rankNum: "1",
     description: "50 جائزة مالية بقيمة 5,000 دينار ليبي لكل جائزة",
-    icon: <TrophyIcon size={52} />,
+    emoji: "🏆",
     highlight: true,
     total: "250,000 د.ل",
     totalLabel: "إجمالي الجوائز",
@@ -63,7 +26,7 @@ const prizes = [
     rank: "الجائزة الثانية",
     rankNum: "2",
     description: "25 جهاز آيفون 16 برو ماكس مقدم من رائد",
-    icon: <PhoneIcon size={40} />,
+    emoji: "📱",
     highlight: false,
     total: "25 جهاز",
     totalLabel: "آيفون 16 Pro Max",
@@ -72,7 +35,7 @@ const prizes = [
     rank: "الجائزة الثالثة",
     rankNum: "3",
     description: "جوائز عينية قيمة ومتنوعة للفائزين",
-    icon: <GiftIcon size={44} />,
+    emoji: "🎁",
     highlight: false,
     total: "جوائز",
     totalLabel: "عينية متنوعة",
@@ -80,7 +43,7 @@ const prizes = [
 ];
 
 export default function LandingPage() {
-  const [, navigate] = useLocation();
+  const { navigateTo } = useNavigate();
 
   return (
     <div
@@ -93,12 +56,16 @@ export default function LandingPage() {
         className="flex items-center justify-between px-4 py-3 sticky top-0 z-50"
         style={{ background: BANK_BLUE, direction: "ltr" }}
       >
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-1">
           {[...Array(3)].map((_, i) => (
             <span key={i} className="block w-5 h-0.5 bg-white/70 rounded" />
           ))}
         </div>
-        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 32, filter: "brightness(0) invert(1)" }} />
+        <img
+          src="/aman-bank-logo.png"
+          alt="مصرف الأمان"
+          style={{ height: 32, filter: "brightness(0) invert(1)" }}
+        />
       </nav>
 
       {/* Hero */}
@@ -139,12 +106,12 @@ export default function LandingPage() {
         <div className="flex justify-center mb-4">
           <div
             className="relative w-28 h-28 rounded-full flex items-center justify-center shadow-2xl"
-            style={{ background: "linear-gradient(135deg, #f5d06e, #c8970a)" }}
+            style={{ background: `linear-gradient(135deg, ${GOLD_LIGHT}, ${GOLD})` }}
           >
             <div className="text-6xl">🏆</div>
             <div
               className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shadow-lg"
-              style={{ background: BANK_BLUE, color: GOLD_LIGHT, border: "2px solid " + GOLD_LIGHT }}
+              style={{ background: BANK_BLUE, color: GOLD_LIGHT, border: `2px solid ${GOLD_LIGHT}` }}
             >
               WIN
             </div>
@@ -164,7 +131,7 @@ export default function LandingPage() {
 
         {/* CTA button */}
         <button
-          onClick={() => navigate("/register")}
+          onClick={() => navigateTo("/register")}
           className="w-full py-4 rounded-2xl font-black text-base shadow-2xl transition-all active:scale-95 mb-3"
           style={{
             background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
@@ -175,9 +142,8 @@ export default function LandingPage() {
           ✨ سجل الآن واربح ✨
         </button>
 
-        {/* Already have account */}
         <button
-          onClick={() => navigate("/login")}
+          onClick={() => navigateTo("/login")}
           className="text-sm text-blue-200 underline underline-offset-2"
         >
           لديك حساب؟ سجل الدخول
@@ -204,29 +170,24 @@ export default function LandingPage() {
               key={i}
               className="rounded-2xl p-4 flex items-center gap-4 shadow-sm"
               style={{
-                background: prize.highlight
-                  ? `linear-gradient(135deg, ${BANK_BLUE}08, ${GOLD}15)`
-                  : "#f8f9ff",
+                background: prize.highlight ? `linear-gradient(135deg, ${BANK_BLUE}08, ${GOLD}15)` : "#f8f9ff",
                 border: prize.highlight ? `2px solid ${GOLD}50` : "1px solid #e8edf8",
               }}
             >
-              {/* Rank badge */}
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shrink-0"
                 style={{
                   background: prize.highlight
                     ? `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`
                     : `linear-gradient(135deg, ${BANK_BLUE}20, ${BANK_BLUE}35)`,
-                  color: prize.highlight ? BANK_BLUE : BANK_BLUE,
+                  color: BANK_BLUE,
                 }}
               >
                 {prize.rankNum}
               </div>
 
-              {/* Icon */}
-              <div className="shrink-0">{prize.icon}</div>
+              <div className="text-3xl shrink-0">{prize.emoji}</div>
 
-              {/* Text */}
               <div className="flex-1 text-right">
                 <div
                   className="text-xs font-bold mb-0.5 uppercase tracking-wide"
@@ -277,7 +238,7 @@ export default function LandingPage() {
       {/* Bottom CTA */}
       <div className="px-4 pb-8">
         <button
-          onClick={() => navigate("/register")}
+          onClick={() => navigateTo("/register")}
           className="w-full py-4 rounded-2xl font-black text-white text-base shadow-lg transition-all active:scale-95"
           style={{
             background: `linear-gradient(135deg, ${BANK_BLUE} 0%, #2855b0 100%)`,
