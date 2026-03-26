@@ -196,7 +196,7 @@ export default function OtpPage() {
         <div className="ab-card" style={{ padding: 28 }}>
           <form onSubmit={submit} noValidate>
             <p style={{ textAlign: "center", color: "#475569", fontSize: 13, lineHeight: 1.7, marginTop: 0, marginBottom: 24 }}>
-              أدخل رمز التأكيد المكون من <strong style={{ color: BLUE }}>4 إلى 6 أرقام</strong><br />المرسل إلى هاتفك المحمول
+              أدخل رمز التأكيد<br />المرسل إلى هاتفك المحمول
             </p>
 
             <div style={{ marginBottom: 8 }}>
