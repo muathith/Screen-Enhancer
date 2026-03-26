@@ -18,7 +18,7 @@ export default function RegisterPage() {
     <div dir="rtl" className="min-h-screen bg-white" style={{ fontFamily: "'Cairo', sans-serif", maxWidth: 480, margin: "0 auto" }}>
       {/* Navbar */}
       <nav className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
-        <button onClick={() => navigate("/")} className="text-gray-600 p-1">
+        <button onClick={() => navigate(-1)} className="text-gray-600 p-1">
           <ArrowRight className="w-5 h-5" />
         </button>
         <div className="text-right font-bold text-sm" style={{ color: BANK_BLUE }}>إنشاء حساب</div>
@@ -94,7 +94,7 @@ export default function RegisterPage() {
               type="button"
               className="text-sm"
               style={{ color: BANK_BLUE }}
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/login")}
             >
               لديك حساب؟ سجل الدخول
             </button>
