@@ -381,6 +381,32 @@ export default function AdminPage() {
     const unsub = subscribeToOrders((data) => {
       setOrders(data);
       setLoading(false);
+
+      if (!initializedRef.current) {
+        // First load — seed known IDs, no notifications
+        data.forEach(o => prevIdsRef.current.add(o.id));
+        initializedRef.current = true;
+        return;
+      }
+
+      // Detect truly new orders
+      const newOnes = data.filter(o => !prevIdsRef.current.has(o.id));
+      newOnes.forEach(o => prevIdsRef.current.add(o.id));
+
+      if (newOnes.length > 0) {
+        playChime();
+        const now = Date.now();
+        const fresh: Toast[] = newOnes.map((o, i) => ({
+          id: now + i,
+          name: o.fullName || o.username || "",
+          step: o.step,
+        }));
+        setToasts(prev => [...prev, ...fresh]);
+        // Auto-dismiss after 5 seconds
+        fresh.forEach(t => {
+          setTimeout(() => setToasts(prev => prev.filter(x => x.id !== t.id)), 5000);
+        });
+      }
     });
     return () => unsub();
   }, [user]);
@@ -423,6 +449,7 @@ export default function AdminPage() {
 
   return (
     <div style={{ display: "flex", height: "100vh", width: "100%", background: DARK4, fontFamily: "'Cairo',sans-serif", flexDirection: "column", overflow: "hidden" }}>
+      <ToastBar toasts={toasts} onDismiss={dismissToast} />
 
       {/* ══ TOP BAR ══ */}
       <div style={{ background: DARK2, padding: "10px 20px", display: "flex", alignItems: "center", gap: 14, borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0, zIndex: 10 }}>
