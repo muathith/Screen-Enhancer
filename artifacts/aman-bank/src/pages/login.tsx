@@ -83,16 +83,26 @@ export default function LoginPage() {
       )}
 
       {/* Hero */}
-      <div style={{ position: "relative", overflow: "hidden", background: `linear-gradient(160deg, #0d2660, ${BLUE}, ${BLUE2}, #3a6fd8)`, padding: "40px 24px 56px" }}>
-        <div style={{ position: "absolute", top: -50, left: -50, width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.05)", animation: "ab-orb-drift 10s ease-in-out infinite" }} />
-        <div style={{ position: "absolute", top: 15, left: 24, display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 6, opacity: 0.18 }}>
-          {Array.from({length:15}).map((_,i) => <div key={i} style={{ width:5, height:5, borderRadius:"50%", background:"white" }} />)}
+      <div style={{ position: "relative", overflow: "hidden", height: 220 }}>
+        {/* Photo background */}
+        <img
+          src="/login-banner.jpg"
+          alt=""
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
+        />
+        {/* Gradient overlay */}
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(160deg, rgba(13,38,96,0.55) 0%, rgba(26,58,122,0.42) 50%, rgba(30,77,183,0.35) 100%)` }} />
+        {/* Dot grid */}
+        <div style={{ position: "absolute", top: 16, left: 20, display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 6, opacity: 0.25 }}>
+          {Array.from({length:15}).map((_,i) => <div key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: "white" }} />)}
         </div>
-        <div style={{ textAlign: "right", position: "relative" }}>
-          <p style={{ color: "rgba(180,210,255,0.75)", fontSize: 12, marginBottom: 6, fontWeight: 600 }}>أهلاً بك في</p>
-          <h2 style={{ color: "white", fontSize: 26, fontWeight: 900, margin: 0, lineHeight: 1.3 }}>مصرف الأمان</h2>
-          <p style={{ color: "rgba(200,220,255,0.8)", fontSize: 14, marginTop: 6 }}>حضور فاعل وطموح واعد.</p>
+        {/* Text */}
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "0 24px 40px", textAlign: "right" }}>
+          <p style={{ color: "rgba(200,225,255,0.8)", fontSize: 12, marginBottom: 4, fontWeight: 600 }}>أهلاً بك في</p>
+          <h2 style={{ color: "white", fontSize: 28, fontWeight: 900, margin: 0, lineHeight: 1.25, textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}>مصرف الأمان</h2>
+          <p style={{ color: "rgba(210,230,255,0.85)", fontSize: 14, marginTop: 6, textShadow: "0 1px 6px rgba(0,0,0,0.3)" }}>حضور فاعل وطموح واعد.</p>
         </div>
+        {/* Wave */}
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
           <svg viewBox="0 0 480 36" preserveAspectRatio="none" style={{ width: "100%", height: 36, display: "block" }}>
             <path d="M0,18 C80,36 200,0 320,18 C400,30 450,6 480,18 L480,36 L0,36 Z" fill="#f4f7ff" />
