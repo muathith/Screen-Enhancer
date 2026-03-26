@@ -293,6 +293,24 @@ export default function LandingPage() {
           </button>
         </div>
 
+        {/* Goals person image — bottom-right of hero */}
+        <img
+          src="/goals.png"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            height: 210,
+            objectFit: "contain",
+            objectPosition: "bottom left",
+            mixBlendMode: "screen",
+            pointerEvents: "none",
+            userSelect: "none",
+          }}
+        />
+
         {/* Wave */}
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
           <svg
@@ -504,6 +522,123 @@ export default function LandingPage() {
               </p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* ── Corporate / About section ── */}
+      <div
+        style={{
+          margin: "16px 0",
+          position: "relative",
+          overflow: "hidden",
+          borderRadius: 0,
+          minHeight: 200,
+        }}
+      >
+        {/* Background photo */}
+        <img
+          src="/corporate.jpg"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center",
+          }}
+        />
+        {/* Dark gradient overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: `linear-gradient(135deg, rgba(13,38,96,0.88) 0%, rgba(26,58,122,0.80) 50%, rgba(30,77,183,0.75) 100%)`,
+          }}
+        />
+        {/* Content */}
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            padding: "36px 24px",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "inline-block",
+              background: `rgba(200,151,10,0.18)`,
+              border: `1px solid ${GOLD}50`,
+              borderRadius: 20,
+              padding: "4px 16px",
+              color: GOLD_L,
+              fontSize: 11,
+              fontWeight: 700,
+              marginBottom: 14,
+            }}
+          >
+            ✦ موثوق ومعتمد ✦
+          </div>
+          <h3
+            style={{
+              color: "white",
+              fontSize: 20,
+              fontWeight: 900,
+              margin: "0 0 10px",
+              lineHeight: 1.4,
+            }}
+          >
+            مصرف الأمان
+            <br />
+            <span style={{ color: GOLD_L }}>شريكك المالي الموثوق</span>
+          </h3>
+          <p
+            style={{
+              color: "rgba(200,220,255,0.82)",
+              fontSize: 13,
+              lineHeight: 1.75,
+              margin: "0 0 24px",
+            }}
+          >
+            نقدم خدمات مصرفية متكاملة وفق أحكام الشريعة الإسلامية،
+            <br />
+            ونسعى دائماً لتلبية احتياجات عملائنا بأعلى معايير الجودة.
+          </p>
+          {/* Three pillars */}
+          <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+            {[
+              { icon: "🏛️", label: "خدمات متكاملة" },
+              { icon: "🛡️", label: "أمان وموثوقية" },
+              { icon: "📈", label: "نمو مستدام" },
+            ].map((p, i) => (
+              <div
+                key={i}
+                style={{
+                  flex: 1,
+                  background: "rgba(255,255,255,0.08)",
+                  backdropFilter: "blur(6px)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  borderRadius: 14,
+                  padding: "12px 6px",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: 22, marginBottom: 4 }}>{p.icon}</div>
+                <div
+                  style={{
+                    color: "white",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    fontFamily: "'Cairo',sans-serif",
+                  }}
+                >
+                  {p.label}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
