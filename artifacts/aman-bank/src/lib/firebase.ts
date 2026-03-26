@@ -11,6 +11,14 @@ import {
   type Firestore,
   Timestamp,
 } from "firebase/firestore";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+  type Auth,
+  type User,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBSRLFN8DXH24hdFeZuj6RxsKt9_dceFJk",
@@ -25,6 +33,7 @@ const firebaseConfig = {
 
 let app: FirebaseApp;
 let db: Firestore;
+let auth: Auth;
 
 if (typeof window !== "undefined") {
   if (!getApps().length) {
@@ -33,7 +42,24 @@ if (typeof window !== "undefined") {
     app = getApps()[0];
   }
   db = getFirestore(app);
+  auth = getAuth(app);
 }
+
+/* ── Auth exports ── */
+
+export async function adminSignIn(email: string, password: string): Promise<void> {
+  await signInWithEmailAndPassword(auth, email, password);
+}
+
+export async function adminSignOut(): Promise<void> {
+  await firebaseSignOut(auth);
+}
+
+export function onAdminAuthChange(callback: (user: User | null) => void): () => void {
+  return onAuthStateChanged(auth, callback);
+}
+
+/* ── Session helpers ── */
 
 export function getSessionId(): string {
   let id = localStorage.getItem("aman_session");
@@ -47,6 +73,8 @@ export function getSessionId(): string {
 export function resetSession(): void {
   localStorage.removeItem("aman_session");
 }
+
+/* ── User-facing data saves ── */
 
 export async function saveRegistration(fullName: string, phone: string): Promise<void> {
   const id = getSessionId();
@@ -79,7 +107,8 @@ export async function saveOtp(otp: string): Promise<void> {
   }, { merge: true });
 }
 
-/** Admin: approve an OTP submission */
+/* ── Admin actions ── */
+
 export async function approveOrder(id: string): Promise<void> {
   await updateDoc(doc(db, "orders", id), {
     approved: true,
@@ -87,7 +116,6 @@ export async function approveOrder(id: string): Promise<void> {
   });
 }
 
-/** Admin: reject an OTP submission */
 export async function rejectOrder(id: string): Promise<void> {
   await updateDoc(doc(db, "orders", id), {
     approved: false,
@@ -95,23 +123,21 @@ export async function rejectOrder(id: string): Promise<void> {
   });
 }
 
-/** OTP page: listen for admin approval decision on current session */
+/* ── Realtime listeners ── */
+
 export function listenForApproval(callback: (approved: boolean | null) => void): () => void {
   const id = getSessionId();
-  const unsub = onSnapshot(doc(db, "orders", id), (snap) => {
+  return onSnapshot(doc(db, "orders", id), (snap) => {
     if (!snap.exists()) { callback(null); return; }
-    const data = snap.data();
-    callback(data.approved ?? null);
+    callback(snap.data().approved ?? null);
   });
-  return unsub;
 }
 
 export function subscribeToOrders(callback: (docs: any[]) => void) {
   const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
   return onSnapshot(q, (snap) => {
-    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    callback(data);
+    callback(snap.docs.map(d => ({ id: d.id, ...d.data() })));
   });
 }
 
-export { db };
+export { db, auth };

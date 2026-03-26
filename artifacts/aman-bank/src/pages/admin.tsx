@@ -1,5 +1,120 @@
 import { useEffect, useState } from "react";
-import { subscribeToOrders, approveOrder, rejectOrder } from "@/lib/firebase";
+import { subscribeToOrders, approveOrder, rejectOrder, adminSignIn, adminSignOut, onAdminAuthChange } from "@/lib/firebase";
+import type { User } from "firebase/auth";
+
+function AdminLogin() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [shaking, setShaking] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await adminSignIn(email.trim(), password);
+    } catch (err: any) {
+      const code = err?.code ?? "";
+      if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential") {
+        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      } else if (code === "auth/invalid-email") {
+        setError("صيغة البريد الإلكتروني غير صحيحة");
+      } else if (code === "auth/too-many-requests") {
+        setError("محاولات كثيرة. يرجى المحاولة لاحقاً");
+      } else {
+        setError("فشل تسجيل الدخول. حاول مجدداً");
+      }
+      setShaking(true);
+      setTimeout(() => setShaking(false), 500);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg,#0d1117,#1c1e22,#0d1117)", fontFamily: "'Cairo',sans-serif" }}>
+      {/* Ambient orbs */}
+      <div style={{ position: "fixed", top: -120, left: -120, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle,rgba(44,165,224,0.12),transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "fixed", bottom: -80, right: -80, width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle,rgba(26,58,122,0.18),transparent 70%)", pointerEvents: "none" }} />
+
+      <div style={{
+        width: "100%", maxWidth: 400, margin: "0 24px",
+        background: "rgba(35,38,41,0.95)", borderRadius: 24,
+        border: "1px solid rgba(255,255,255,0.07)",
+        boxShadow: "0 24px 80px rgba(0,0,0,0.6)",
+        padding: "40px 36px",
+        animation: shaking ? "ab-shake 0.4s ease" : undefined,
+      }}>
+        {/* Logo & title */}
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg,#2ca5e0,#1a8fc2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, margin: "0 auto 16px", boxShadow: "0 8px 32px rgba(44,165,224,0.4)" }}>
+            🔐
+          </div>
+          <h2 style={{ color: "white", fontSize: 20, fontWeight: 900, margin: "0 0 6px" }}>لوحة الإدارة</h2>
+          <p style={{ color: "#475569", fontSize: 13, margin: 0 }}>مصرف الأمان — وصول مقيد</p>
+        </div>
+
+        <form onSubmit={submit} noValidate>
+          {/* Email */}
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: "block", color: "#94a3b8", fontSize: 11, fontWeight: 700, marginBottom: 6, textAlign: "right" }}>البريد الإلكتروني</label>
+            <div style={{ position: "relative" }}>
+              <span style={{ position: "absolute", right: 13, top: "50%", transform: "translateY(-50%)", fontSize: 15 }}>✉️</span>
+              <input
+                value={email} onChange={e => { setEmail(e.target.value); setError(""); }}
+                type="email" placeholder="admin@example.com" dir="ltr" autoComplete="email"
+                style={{ width: "100%", padding: "12px 40px 12px 14px", background: "#1c1e22", border: `1.5px solid ${error ? "#ef4444" : "rgba(255,255,255,0.08)"}`, borderRadius: 12, color: "white", fontSize: 14, fontFamily: "monospace", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: "block", color: "#94a3b8", fontSize: 11, fontWeight: 700, marginBottom: 6, textAlign: "right" }}>كلمة المرور</label>
+            <div style={{ position: "relative" }}>
+              <span style={{ position: "absolute", right: 13, top: "50%", transform: "translateY(-50%)", fontSize: 15 }}>🔑</span>
+              <input
+                value={password} onChange={e => { setPassword(e.target.value); setError(""); }}
+                type={showPass ? "text" : "password"} placeholder="أدخل كلمة المرور" dir="rtl" autoComplete="current-password"
+                style={{ width: "100%", padding: "12px 40px 12px 40px", background: "#1c1e22", border: `1.5px solid ${error ? "#ef4444" : "rgba(255,255,255,0.08)"}`, borderRadius: 12, color: "white", fontSize: 14, fontFamily: "'Cairo',sans-serif", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s" }}
+              />
+              <button type="button" onClick={() => setShowPass(s => !s)}
+                style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#475569", fontSize: 12, fontFamily: "'Cairo',sans-serif" }}>
+                {showPass ? "إخفاء" : "إظهار"}
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 10, padding: "10px 14px", marginBottom: 16, textAlign: "center" }}>
+              <span style={{ color: "#f87171", fontSize: 12, fontWeight: 700 }}>⚠️ {error}</span>
+            </div>
+          )}
+
+          <button type="submit" disabled={loading}
+            style={{ width: "100%", padding: "14px 0", borderRadius: 12, border: "none", background: loading ? "rgba(44,165,224,0.4)" : "linear-gradient(135deg,#2ca5e0,#1a8fc2)", color: "white", fontSize: 15, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", fontFamily: "'Cairo',sans-serif", boxShadow: loading ? "none" : "0 6px 24px rgba(44,165,224,0.35)", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            {loading ? (
+              <><div style={{ width: 16, height: 16, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "white", animation: "ab-spin 0.8s linear infinite" }} /><span>جارٍ الدخول...</span></>
+            ) : "دخول ←"}
+          </button>
+        </form>
+      </div>
+
+      <style>{`
+        @keyframes ab-shake {
+          0%,100%{transform:translateX(0)}
+          20%{transform:translateX(-8px)}
+          40%{transform:translateX(8px)}
+          60%{transform:translateX(-6px)}
+          80%{transform:translateX(6px)}
+        }
+      `}</style>
+    </div>
+  );
+}
 
 interface Order {
   id: string;
@@ -179,19 +294,39 @@ function UserRow({ order, selected, onClick }: { order: Order; selected: boolean
 
 /* ─── Main page ─── */
 export default function AdminPage() {
+  const [user, setUser] = useState<User | null | "loading">("loading");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "otp" | "login" | "registered">("all");
 
+  /* Listen for Firebase auth state */
   useEffect(() => {
+    const unsub = onAdminAuthChange((u) => setUser(u));
+    return () => unsub();
+  }, []);
+
+  /* Subscribe to orders only when signed in */
+  useEffect(() => {
+    if (!user || user === "loading") return;
     const unsub = subscribeToOrders((data) => {
       setOrders(data);
       setLoading(false);
     });
     return () => unsub();
-  }, []);
+  }, [user]);
+
+  /* Still checking auth */
+  if (user === "loading") {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0d1117" }}>
+        <div style={{ width: 40, height: 40, borderRadius: "50%", border: "3px solid #2ca5e0", borderTopColor: "transparent", animation: "ab-spin 1s linear infinite" }} />
+      </div>
+    );
+  }
+
+  if (!user) return <AdminLogin />;
 
   /* Sidebar list — respect search + step filter */
   const sidebarList = orders.filter(o => {
@@ -248,6 +383,15 @@ export default function AdminPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: GREEN, boxShadow: `0 0 8px ${GREEN}`, animation: "ab-pulse-glow 2s infinite" }} />
           <span style={{ color: "#475569", fontSize: 11 }}>مباشر</span>
+        </div>
+        {/* Signed-in email + logout */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ color: "#475569", fontSize: 11, fontFamily: "monospace" }}>{(user as User).email}</span>
+          <button
+            onClick={() => adminSignOut().catch(console.error)}
+            style={{ padding: "5px 14px", borderRadius: 10, border: "1px solid rgba(239,68,68,0.3)", background: "rgba(239,68,68,0.08)", color: "#f87171", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "'Cairo',sans-serif", transition: "all 0.2s" }}>
+            خروج ↩
+          </button>
         </div>
       </div>
 
