@@ -1,166 +1,205 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "@/components/TransitionContext";
 
-const BANK_BLUE = "#1a3a7a";
+const BLUE = "#1a3a7a";
+const BLUE2 = "#1e4db7";
 
-function FieldError({ msg }: { msg: string }) {
-  return <p className="text-xs mt-1 text-center" style={{ color: "#dc2626" }}>{msg}</p>;
+function StepBar({ active }: { active: number }) {
+  const labels = ["بياناتك", "تسجيل الدخول", "التحقق"];
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 24px 8px", gap: 0 }}>
+      {labels.map((label, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", flex: i < labels.length - 1 ? 1 : "none" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0 }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: "50%",
+              background: i < active ? `linear-gradient(135deg,#10b981,#059669)` : i === active ? `linear-gradient(135deg,${BLUE},${BLUE2})` : "#e2e8f0",
+              color: i <= active ? "white" : "#94a3b8",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 13, fontWeight: 800,
+              boxShadow: i <= active ? `0 4px 14px ${BLUE}40` : "none",
+            }}>
+              {i < active ? "✓" : i + 1}
+            </div>
+            <span style={{ fontSize: 9, fontWeight: 700, color: i <= active ? BLUE : "#94a3b8" }}>{label}</span>
+          </div>
+          {i < labels.length - 1 && (
+            <div style={{ flex: 1, height: 2, margin: "0 6px", marginBottom: 16, background: i < active ? "#10b981" : "#e2e8f0", borderRadius: 2 }} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function OtpPage() {
   const { navigateTo, navigateBack } = useNavigate();
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState(["","","","","",""]);
   const [timeLeft, setTimeLeft] = useState(120);
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const refs = useRef<(HTMLInputElement|null)[]>([]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
-    const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
-    return () => clearInterval(timer);
+    const t = setInterval(() => setTimeLeft(s => s-1), 1000);
+    return () => clearInterval(t);
   }, [timeLeft]);
 
-  const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+  const fmt = (s: number) => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,"0")}`;
 
-  const handleChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
-    setOtp(newOtp);
-    if (submitted) setError(newOtp.every(d => d !== "") ? "" : "أدخل الرمز المكون من 6 أرقام");
-    if (value && index < 5) inputRefs.current[index + 1]?.focus();
+  const onChange = (i: number, v: string) => {
+    if (!/^\d*$/.test(v)) return;
+    const next = [...otp]; next[i] = v.slice(-1); setOtp(next);
+    if (submitted) setError(next.every(d=>d) ? "" : "أدخل الرمز المكون من 6 أرقام");
+    if (v && i < 5) refs.current[i+1]?.focus();
+  };
+  const onKey = (i: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otp[i] && i > 0) refs.current[i-1]?.focus();
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) inputRefs.current[index - 1]?.focus();
-  };
-
-  const handleVerify = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault(); setSubmitted(true);
     if (timeLeft <= 0) { setError("انتهت مدة الرمز. اضغط على إعادة الإرسال"); return; }
-    if (!otp.every(d => d !== "")) { setError("أدخل الرمز المكون من 6 أرقام"); return; }
-    setError("");
-    setVerified(true);
-    setTimeout(() => navigateTo("/"), 2000);
+    if (!otp.every(d=>d)) { setError("أدخل الرمز المكون من 6 أرقام"); return; }
+    setError(""); setVerified(true);
+    setTimeout(() => navigateTo("/"), 2200);
   };
 
   const isComplete = otp.every(d => d !== "");
 
+  /* ── Success screen ── */
   if (verified) {
     return (
-      <div dir="rtl" className="min-h-screen flex flex-col items-center justify-center bg-white" style={{ fontFamily: "'Cairo', sans-serif" }}>
-        <div className="w-20 h-20 rounded-full flex items-center justify-center text-3xl mb-4 shadow-lg text-white font-bold" style={{ background: `linear-gradient(135deg, ${BANK_BLUE}, #2855b0)` }}>✓</div>
-        <h2 className="text-xl font-bold mb-1" style={{ color: BANK_BLUE }}>تم التحقق بنجاح!</h2>
-        <p className="text-gray-500 text-sm">جارٍ تسجيل الدخول...</p>
+      <div dir="rtl" style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", background:`linear-gradient(160deg,#0d2660,${BLUE},${BLUE2})`, fontFamily:"'Cairo',sans-serif" }}>
+        <div style={{ position:"relative", marginBottom:28 }}>
+          {[0,1].map(i => (
+            <div key={i} style={{ position:"absolute", inset:i*12, borderRadius:"50%", border:`2px solid rgba(16,185,129,${0.4-i*0.2})`, animation:`ab-ring 2s ease-out infinite`, animationDelay:`${i*0.5}s` }} />
+          ))}
+          <div className="ab-scale-in" style={{ width:96, height:96, borderRadius:"50%", background:"linear-gradient(135deg,#10b981,#059669)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:40, boxShadow:"0 8px 40px rgba(16,185,129,0.6)" }}>
+            ✓
+          </div>
+        </div>
+        <h2 className="ab-slide-up" style={{ color:"white", fontSize:22, fontWeight:900, margin:"0 0 8px", textAlign:"center" }}>تم التحقق بنجاح!</h2>
+        <p style={{ color:"rgba(200,230,255,0.75)", fontSize:14, textAlign:"center" }}>جارٍ تسجيل الدخول...</p>
+        <div style={{ display:"flex", gap:8, marginTop:20 }}>
+          {[0,1,2,3].map(i => <div key={i} style={{ width:8, height:8, borderRadius:"50%", background:"rgba(255,255,255,0.6)", animation:`ab-dot ${1.2}s ease-in-out infinite`, animationDelay:`${i*0.18}s` }} />)}
+        </div>
       </div>
     );
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-white" style={{ fontFamily: "'Cairo', sans-serif", maxWidth: 480, margin: "0 auto" }}>
+    <div dir="rtl" style={{ fontFamily:"'Cairo',sans-serif", maxWidth:480, margin:"0 auto", minHeight:"100vh", background:"#f4f7ff" }}>
+
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
-        <button onClick={() => navigateBack()} className="text-gray-600 p-1">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M9 18l6-6-6-6" /></svg>
+      <nav style={{ background:"white", position:"sticky", top:0, zIndex:50, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"12px 16px", boxShadow:"0 2px 16px rgba(26,58,122,0.08)" }}>
+        <button onClick={() => navigateBack()} style={{ background:`${BLUE}12`, border:"none", width:36, height:36, borderRadius:10, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", color:BLUE }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width:18, height:18 }}><path d="M9 18l6-6-6-6" /></svg>
         </button>
-        <div className="text-sm font-bold" style={{ color: BANK_BLUE }}>رمز التحقق</div>
-        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 36 }} />
+        <span style={{ fontSize:15, fontWeight:800, color:BLUE }}>رمز التحقق</span>
+        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height:34 }} />
       </nav>
 
-      {/* Progress */}
-      <div className="px-5 pt-4 pb-2">
-        <div className="flex items-center justify-center gap-2 mb-1">
-          {["بياناتك", "تسجيل الدخول", "التحقق"].map((label, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: BANK_BLUE, color: "white" }}>
-                  {i < 2 ? "✓" : i + 1}
-                </div>
-                <span className="text-xs" style={{ color: BANK_BLUE, fontSize: 9 }}>{label}</span>
-              </div>
-              {i < 2 && <div className="w-8 h-px mb-4" style={{ background: BANK_BLUE }} />}
-            </div>
-          ))}
+      {/* Hero */}
+      <div style={{ position:"relative", overflow:"hidden", background:`linear-gradient(135deg,#0d2660,${BLUE},${BLUE2})`, padding:"32px 24px 52px", textAlign:"center" }}>
+        <div style={{ position:"absolute", top:-40, right:-40, width:160, height:160, borderRadius:"50%", background:"rgba(255,255,255,0.05)", animation:"ab-orb-drift 9s ease-in-out infinite" }} />
+        <div style={{ fontSize:44, marginBottom:12 }} className="ab-float">🔐</div>
+        <h2 style={{ color:"white", fontSize:20, fontWeight:900, margin:"0 0 6px" }}>رمز التحقق</h2>
+        <p style={{ color:"rgba(200,220,255,0.75)", fontSize:13, margin:0 }}>أدخل الرمز المرسل إلى هاتفك المحمول</p>
+        <div style={{ position:"absolute", bottom:0, left:0, right:0 }}>
+          <svg viewBox="0 0 480 36" preserveAspectRatio="none" style={{ width:"100%", height:36, display:"block" }}>
+            <path d="M0,18 C120,36 240,0 360,18 C420,26 460,8 480,18 L480,36 L0,36 Z" fill="#f4f7ff" />
+          </svg>
         </div>
       </div>
 
-      {/* Hero */}
-      <div className="h-20 flex flex-col items-center justify-center" style={{ background: `linear-gradient(135deg, ${BANK_BLUE} 0%, #2855b0 100%)` }}>
-        <p className="text-white font-bold text-base">رمز التحقق</p>
-        <p className="text-blue-200 text-xs mt-1">أدخل الرمز المرسل إلى هاتفك</p>
-      </div>
+      <StepBar active={2} />
 
-      <div className="px-5 pt-6 pb-6">
-        <form onSubmit={handleVerify} noValidate>
-          <p className="text-gray-600 text-sm text-right mb-5 leading-relaxed">
-            أدخل رمز التأكيد المكون من 6 أرقام المرسل إلى هاتفك المحمول
-          </p>
+      {/* OTP card */}
+      <div style={{ padding:"8px 16px 32px" }}>
+        <div className="ab-card" style={{ padding:28 }}>
+          <form onSubmit={submit} noValidate>
+            <p style={{ textAlign:"center", color:"#475569", fontSize:13, lineHeight:1.7, marginTop:0, marginBottom:24 }}>
+              أدخل رمز التأكيد المكون من <strong style={{ color:BLUE }}>6 أرقام</strong><br />المرسل إلى هاتفك المحمول
+            </p>
 
-          <div className="flex justify-center gap-2 mb-2 flex-row-reverse">
-            {otp.map((digit, index) => (
-              <input
-                key={index}
-                ref={el => { inputRefs.current[index] = el; }}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={e => handleChange(index, e.target.value)}
-                onKeyDown={e => handleKeyDown(index, e)}
-                className="w-11 h-12 text-center text-lg font-bold rounded outline-none transition-all"
-                style={{
-                  background: digit ? BANK_BLUE : submitted && error ? "#fff0f0" : "#f0f4ff",
-                  color: digit ? "white" : BANK_BLUE,
-                  border: `2px solid ${digit ? BANK_BLUE : submitted && error ? "#dc2626" : "#d1d9f0"}`,
-                }}
-              />
-            ))}
-          </div>
-
-          {error && <FieldError msg={error} />}
-
-          <div className="flex items-center justify-between mt-4 mb-6">
-            <button
-              type="button"
-              disabled={timeLeft > 0}
-              onClick={() => { setTimeLeft(120); setError(""); setSubmitted(false); }}
-              className="text-sm font-semibold"
-              style={{ color: timeLeft > 0 ? "#94a3b8" : BANK_BLUE, cursor: timeLeft > 0 ? "not-allowed" : "pointer" }}
-            >
-              إعادة الإرسال
-            </button>
-            <div className="font-mono font-bold text-sm px-3 py-1 rounded" style={{ background: timeLeft > 30 ? "#f0f4ff" : "#fff0f0", color: timeLeft > 30 ? BANK_BLUE : "#dc2626", border: `1px solid ${timeLeft > 30 ? "#d1d9f0" : "#fca5a5"}` }}>
-              {timeLeft > 0 ? formatTime(timeLeft) : "انتهى الوقت"}
+            {/* OTP boxes */}
+            <div style={{ display:"flex", justifyContent:"center", gap:10, marginBottom:8, flexDirection:"row-reverse" }}>
+              {otp.map((digit, i) => (
+                <input
+                  key={i}
+                  ref={el => { refs.current[i] = el; }}
+                  type="text" inputMode="numeric" maxLength={1} value={digit}
+                  onChange={e => onChange(i, e.target.value)}
+                  onKeyDown={e => onKey(i, e)}
+                  style={{
+                    width:46, height:54, textAlign:"center", fontSize:22, fontWeight:800,
+                    borderRadius:14, border:`2.5px solid ${digit ? BLUE : submitted&&error ? "#ef4444" : "#dde4f0"}`,
+                    background: digit ? `linear-gradient(135deg,${BLUE},${BLUE2})` : submitted&&error ? "#fff5f5" : "#f8faff",
+                    color: digit ? "white" : BLUE,
+                    outline:"none", fontFamily:"'Cairo',sans-serif",
+                    boxShadow: digit ? `0 4px 14px ${BLUE}45` : "none",
+                    transition:"all 0.18s",
+                  }}
+                />
+              ))}
             </div>
-          </div>
 
-          {timeLeft <= 0 && (
-            <div className="rounded-lg p-3 mb-4 text-right text-xs leading-relaxed" style={{ background: "#fff0f0", border: "1px solid #fca5a5", color: "#dc2626" }}>
-              انتهت صلاحية الرمز. اضغط على "إعادة الإرسال" للحصول على رمز جديد.
+            {error && <p style={{ color:"#ef4444", fontSize:12, textAlign:"center", fontWeight:700, margin:"8px 0 0" }}>{error}</p>}
+
+            {/* Timer row */}
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", margin:"20px 0 16px" }}>
+              <button
+                type="button"
+                disabled={timeLeft > 0}
+                onClick={() => { setTimeLeft(120); setError(""); setSubmitted(false); setOtp(["","","","","",""]); }}
+                style={{ background:"none", border:"none", fontWeight:700, fontSize:13, cursor:timeLeft>0?"not-allowed":"pointer", color:timeLeft>0?"#cbd5e1":BLUE, fontFamily:"'Cairo',sans-serif" }}
+              >
+                إعادة الإرسال
+              </button>
+              <div style={{
+                padding:"8px 16px", borderRadius:12, fontFamily:"monospace", fontWeight:800, fontSize:15,
+                background: timeLeft>30 ? "#f0f4ff" : timeLeft>0 ? "#fff5f5" : "#fee2e2",
+                color: timeLeft>30 ? BLUE : "#ef4444",
+                border:`1.5px solid ${timeLeft>30?"#dde4f0":"#fca5a5"}`,
+              }}>
+                {timeLeft > 0 ? fmt(timeLeft) : "انتهى ⚠️"}
+              </div>
             </div>
-          )}
 
-          <div className="rounded-lg p-3 mb-6 text-right" style={{ background: "#f0f7ff", border: "1px solid #c7d9f7" }}>
-            <p className="text-xs text-gray-600 leading-relaxed">🔒 لا تشارك رمز التحقق مع أي شخص. مصرف الأمان لن يطلب منك هذا الرمز أبداً.</p>
-          </div>
+            {timeLeft <= 0 && (
+              <div style={{ background:"#fff5f5", border:"1px solid #fca5a5", borderRadius:14, padding:"12px 16px", marginBottom:16, textAlign:"right" }}>
+                <p style={{ color:"#ef4444", fontSize:12, margin:0, lineHeight:1.7 }}>انتهت صلاحية الرمز. اضغط على "إعادة الإرسال" للحصول على رمز جديد.</p>
+              </div>
+            )}
 
-          <div className="flex justify-center">
+            {/* Security note */}
+            <div style={{ background:`linear-gradient(135deg,${BLUE}08,${BLUE2}12)`, border:`1px solid ${BLUE}18`, borderRadius:14, padding:"12px 16px", marginBottom:24, textAlign:"right" }}>
+              <p style={{ color:"#475569", fontSize:12, lineHeight:1.7, margin:0 }}>
+                🔒 <strong>تنبيه أمني:</strong> لا تشارك رمز التحقق مع أي شخص. مصرف الأمان لن يطلب منك هذا الرمز أبداً.
+              </p>
+            </div>
+
             <button
               type="submit"
-              className="px-16 py-3 rounded font-bold text-sm transition-all"
-              style={{ background: isComplete && timeLeft > 0 ? BANK_BLUE : "#9eb0d4", color: "white", minWidth: 200, cursor: isComplete && timeLeft > 0 ? "pointer" : "not-allowed" }}
+              style={{
+                width:"100%", padding:"16px 0", borderRadius:14, fontWeight:800, fontSize:15, color:"white", border:"none",
+                cursor: isComplete&&timeLeft>0 ? "pointer" : "not-allowed",
+                background: isComplete&&timeLeft>0 ? `linear-gradient(135deg,${BLUE},${BLUE2})` : "#c0cfe8",
+                boxShadow: isComplete&&timeLeft>0 ? `0 6px 24px ${BLUE}45` : "none",
+                transition:"all 0.2s", fontFamily:"'Cairo',sans-serif"
+              }}
             >
-              تأكيد
+              تأكيد ✓
             </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
 
-      <div className="px-5 py-3 text-center border-t border-gray-100">
-        <p className="text-gray-400 text-xs">© 2019 مصرف الأمان — جميع الحقوق محفوظة</p>
+      <div style={{ padding:"0 16px 24px", textAlign:"center" }}>
+        <p style={{ color:"#94a3b8", fontSize:11 }}>© 2019 مصرف الأمان — جميع الحقوق محفوظة</p>
       </div>
     </div>
   );

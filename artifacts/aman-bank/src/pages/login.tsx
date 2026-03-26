@@ -1,201 +1,188 @@
 import { useState } from "react";
-import { Eye, EyeOff, Menu, Search } from "lucide-react";
+import { Menu, Search, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "@/components/TransitionContext";
 
-const BANK_BLUE = "#1a3a7a";
+const BLUE = "#1a3a7a";
+const BLUE2 = "#1e4db7";
 
 const services = [
-  { label: "إدارة المستفيدين", icon: "👤" },
-  { label: "بطاقات الدفع المسبق", icon: "💳" },
-  { label: "سحب بدون بطاقة", icon: "🏧" },
-  { label: "كاستومر اونبوردنق", icon: "👨‍💼" },
-  { label: "شحن رصيد الموبايل", icon: "📱" },
-  { label: "بطاقات السحب الآلي", icon: "💰" },
-  { label: "طلب طباعة بطاقة عن طريق الـ KIOSK", icon: "🖨️" },
-  { label: "تحويل الأموال", icon: "🔄" },
-  { label: "طباعة دفتر صكوك عن طريق KIOSK", icon: "📄" },
-  { label: "مطابقة بيانات مخصص الأغراض الشخصية 2024", icon: "✅" },
-  { label: "أمان باي كيو آر", icon: "📲" },
+  { label: "إدارة المستفيدين",           icon: "👤" },
+  { label: "بطاقات الدفع المسبق",        icon: "💳" },
+  { label: "سحب بدون بطاقة",             icon: "🏧" },
+  { label: "كاستومر اونبوردنق",          icon: "👨‍💼" },
+  { label: "شحن رصيد الموبايل",          icon: "📱" },
+  { label: "بطاقات السحب الآلي",         icon: "💰" },
+  { label: "طباعة بطاقة KIOSK",          icon: "🖨️" },
+  { label: "تحويل الأموال",               icon: "🔄" },
+  { label: "طباعة دفتر صكوك",            icon: "📄" },
+  { label: "مطابقة بيانات 2024",          icon: "✅" },
+  { label: "أمان باي QR",                icon: "📲" },
 ];
 
 function FieldError({ msg }: { msg: string }) {
-  return <p className="text-xs mt-1 text-right" style={{ color: "#dc2626" }}>{msg}</p>;
+  return <p style={{ color: "#ef4444", fontSize: 11, marginTop: 4, textAlign: "right", fontWeight: 600 }}>{msg}</p>;
 }
 
 export default function LoginPage() {
-  const { navigateTo, navigateBack } = useNavigate();
+  const { navigateTo } = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPw, setShowPw] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
   const [touched, setTouched] = useState<{ username?: boolean; password?: boolean }>({});
 
-  function validate(u: string, p: string) {
-    const errs: { username?: string; password?: string } = {};
-    if (!u.trim()) errs.username = "اسم المستخدم مطلوب";
-    if (!p) errs.password = "كلمة المرور مطلوبة";
-    else if (p.length < 4) errs.password = "كلمة المرور يجب أن تكون 4 أحرف على الأقل";
-    return errs;
-  }
-
-  const handleBlur = (field: "username" | "password") => {
-    setTouched(t => ({ ...t, [field]: true }));
-    setErrors(validate(username, password));
+  const validate = (u: string, p: string) => {
+    const e: { username?: string; password?: string } = {};
+    if (!u.trim()) e.username = "اسم المستخدم مطلوب";
+    if (!p) e.password = "كلمة المرور مطلوبة";
+    else if (p.length < 4) e.password = "كلمة المرور يجب أن تكون 4 أحرف على الأقل";
+    return e;
   };
+  const touch = (f: "username" | "password") => { setTouched(t => ({ ...t, [f]: true })); setErrors(validate(username, password)); };
+  const isValid = !Object.keys(validate(username, password)).length && !!username && !!password;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate(username, password);
-    setErrors(errs);
-    setTouched({ username: true, password: true });
-    if (Object.keys(errs).length === 0) navigateTo("/otp");
+    setErrors(errs); setTouched({ username: true, password: true });
+    if (!Object.keys(errs).length) navigateTo("/otp");
   };
 
-  const isValid = Object.keys(validate(username, password)).length === 0 && !!username && !!password;
-
   return (
-    <div dir="rtl" className="min-h-screen bg-white" style={{ fontFamily: "'Cairo', sans-serif", maxWidth: 480, margin: "0 auto" }}>
+    <div dir="rtl" style={{ fontFamily: "'Cairo', sans-serif", maxWidth: 480, margin: "0 auto", minHeight: "100vh", background: "#f4f7ff" }}>
+
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm" style={{ direction: "ltr" }}>
-        <div className="flex items-center gap-2">
-          <button onClick={() => setMenuOpen(!menuOpen)} className="text-gray-600 p-1"><Menu className="w-6 h-6" /></button>
-          <button className="text-gray-600 p-1"><Search className="w-5 h-5" /></button>
+      <nav style={{ background: "white", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", boxShadow: "0 2px 16px rgba(26,58,122,0.08)", direction: "ltr" }}>
+        <div style={{ display: "flex", gap: 4 }}>
+          <button onClick={() => setMenuOpen(true)} style={{ background: `${BLUE}12`, border: "none", width: 36, height: 36, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: BLUE }}>
+            <Menu size={18} />
+          </button>
+          <button style={{ background: `${BLUE}12`, border: "none", width: 36, height: 36, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: BLUE }}>
+            <Search size={16} />
+          </button>
         </div>
-        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 36 }} />
+        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 34 }} />
       </nav>
 
-      {/* Menu overlay */}
+      {/* Drawer */}
       {menuOpen && (
-        <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setMenuOpen(false)}>
-          <div className="absolute top-0 right-0 bottom-0 w-72 bg-white shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="p-5 pt-6" style={{ background: BANK_BLUE }}>
-              <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 40, filter: "brightness(0) invert(1)" }} />
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.5)" }} onClick={() => setMenuOpen(false)}>
+          <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 280, background: "white", boxShadow: "-8px 0 40px rgba(0,0,0,0.2)" }} onClick={e => e.stopPropagation()}>
+            <div style={{ background: `linear-gradient(135deg, #0d2660, ${BLUE})`, padding: "28px 20px 20px" }}>
+              <img src="/aman-bank-logo.png" alt="" style={{ height: 40, filter: "brightness(0) invert(1)" }} />
+              <p style={{ color: "rgba(200,220,255,0.7)", fontSize: 12, marginTop: 8, marginBottom: 0 }}>مصرف الأمان — خدمات مصرفية متميزة</p>
             </div>
-            <div className="p-4 flex flex-col">
-              {["الرئيسية", "خدماتنا", "من نحن", "تواصل معنا", "الشروط والأحكام"].map(item => (
-                <button key={item} className="text-right py-3 px-2 border-b border-gray-100 text-gray-700 font-medium text-sm w-full">{item}</button>
-              ))}
-            </div>
+            {["الرئيسية","خدماتنا","من نحن","تواصل معنا","الشروط والأحكام"].map(item => (
+              <button key={item} style={{ display: "block", width: "100%", textAlign: "right", padding: "14px 20px", border: "none", borderBottom: "1px solid #f1f5f9", background: "white", color: "#374151", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "'Cairo', sans-serif" }}>
+                {item}
+              </button>
+            ))}
           </div>
         </div>
       )}
 
       {/* Hero */}
-      <div className="relative overflow-hidden" style={{ height: 180 }}>
-        <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${BANK_BLUE} 0%, #2855b0 40%, #3a6fd8 70%, #7aa3e5 100%)` }} />
-        <div className="absolute top-4 left-4 grid grid-cols-4 gap-1.5 opacity-30">
-          {Array.from({ length: 16 }).map((_, i) => <div key={i} className="w-1 h-1 rounded-full bg-white" />)}
+      <div style={{ position: "relative", overflow: "hidden", background: `linear-gradient(160deg, #0d2660, ${BLUE}, ${BLUE2}, #3a6fd8)`, padding: "40px 24px 56px" }}>
+        <div style={{ position: "absolute", top: -50, left: -50, width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.05)", animation: "ab-orb-drift 10s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", top: 15, left: 24, display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 6, opacity: 0.18 }}>
+          {Array.from({length:15}).map((_,i) => <div key={i} style={{ width:5, height:5, borderRadius:"50%", background:"white" }} />)}
         </div>
-        <div className="absolute inset-0 flex items-end pb-6 pr-5">
-          <p className="text-white text-xl font-bold leading-snug" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
-            مصرف الأمان<br />حضور فاعل و طموح واعد.
-          </p>
+        <div style={{ textAlign: "right", position: "relative" }}>
+          <p style={{ color: "rgba(180,210,255,0.75)", fontSize: 12, marginBottom: 6, fontWeight: 600 }}>أهلاً بك في</p>
+          <h2 style={{ color: "white", fontSize: 26, fontWeight: 900, margin: 0, lineHeight: 1.3 }}>مصرف الأمان</h2>
+          <p style={{ color: "rgba(200,220,255,0.8)", fontSize: 14, marginTop: 6 }}>حضور فاعل وطموح واعد.</p>
+        </div>
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
+          <svg viewBox="0 0 480 36" preserveAspectRatio="none" style={{ width: "100%", height: 36, display: "block" }}>
+            <path d="M0,18 C80,36 200,0 320,18 C400,30 450,6 480,18 L480,36 L0,36 Z" fill="#f4f7ff" />
+          </svg>
         </div>
       </div>
 
-      {/* Login Form */}
-      <div className="px-5 pt-6 pb-4">
-        <form onSubmit={handleLogin} noValidate>
-          <div className="mb-5">
-            <input
-              type="text"
-              value={username}
-              onChange={e => { setUsername(e.target.value); if (touched.username) setErrors(validate(e.target.value, password)); }}
-              onBlur={() => handleBlur("username")}
-              placeholder="اسم المستخدم"
-              className="w-full text-right text-sm py-2 outline-none placeholder-gray-400 transition-all"
-              style={{ borderBottom: `1.5px solid ${touched.username && errors.username ? "#dc2626" : username ? BANK_BLUE : "#d1d5db"}`, background: "transparent", color: "#1a202c" }}
-            />
-            {touched.username && errors.username && <FieldError msg={errors.username} />}
-          </div>
+      {/* Login card */}
+      <div style={{ padding: "0 16px", marginTop: -8 }}>
+        <div className="ab-card" style={{ padding: 24 }}>
+          <h3 style={{ textAlign: "center", color: BLUE, fontSize: 16, fontWeight: 800, marginBottom: 20, marginTop: 0 }}>تسجيل الدخول</h3>
+          <form onSubmit={submit} noValidate>
 
-          <div className="mb-5 relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={e => { setPassword(e.target.value); if (touched.password) setErrors(validate(username, e.target.value)); }}
-              onBlur={() => handleBlur("password")}
-              placeholder="كلمة المرور"
-              className="w-full text-right text-sm py-2 outline-none placeholder-gray-400 pr-0 pl-7 transition-all"
-              style={{ borderBottom: `1.5px solid ${touched.password && errors.password ? "#dc2626" : password ? BANK_BLUE : "#d1d5db"}`, background: "transparent", color: "#1a202c" }}
-            />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400">
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
-            {touched.password && errors.password && <FieldError msg={errors.password} />}
-          </div>
+            {/* Username */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ position: "relative" }}>
+                <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 16 }}>🧑</div>
+                <input
+                  type="text" value={username} placeholder="اسم المستخدم"
+                  onChange={e => { setUsername(e.target.value); if (touched.username) setErrors(validate(e.target.value, password)); }}
+                  onBlur={() => touch("username")}
+                  style={{ width:"100%", padding:"14px 46px 14px 14px", borderRadius:14, border:`2px solid ${touched.username&&errors.username?"#ef4444":username?BLUE:"#e2e8f0"}`, background: touched.username&&errors.username?"#fff5f5":username?"#f0f4ff":"#f8faff", fontSize:14, fontFamily:"'Cairo',sans-serif", textAlign:"right", color:"#1a202c", outline:"none", transition:"all 0.2s", boxSizing:"border-box" }}
+                />
+              </div>
+              {touched.username && errors.username && <FieldError msg={errors.username} />}
+            </div>
 
-          <div className="flex justify-center mb-3 mt-4">
+            {/* Password */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ position: "relative" }}>
+                <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 16 }}>🔑</div>
+                <input
+                  type={showPw ? "text" : "password"} value={password} placeholder="كلمة المرور"
+                  onChange={e => { setPassword(e.target.value); if (touched.password) setErrors(validate(username, e.target.value)); }}
+                  onBlur={() => touch("password")}
+                  style={{ width:"100%", padding:"14px 46px 14px 46px", borderRadius:14, border:`2px solid ${touched.password&&errors.password?"#ef4444":password?BLUE:"#e2e8f0"}`, background: touched.password&&errors.password?"#fff5f5":password?"#f0f4ff":"#f8faff", fontSize:14, fontFamily:"'Cairo',sans-serif", textAlign:"right", color:"#1a202c", outline:"none", transition:"all 0.2s", boxSizing:"border-box" }}
+                />
+                <button type="button" onClick={() => setShowPw(!showPw)} style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", color:"#94a3b8", padding:0 }}>
+                  {showPw ? <EyeOff size={18}/> : <Eye size={18}/>}
+                </button>
+              </div>
+              {touched.password && errors.password && <FieldError msg={errors.password} />}
+            </div>
+
             <button
               type="submit"
-              className="px-16 py-2.5 rounded font-bold text-white text-sm transition-all"
-              style={{ background: isValid ? BANK_BLUE : "#9eb0d4", minWidth: 180, cursor: isValid ? "pointer" : "not-allowed" }}
+              style={{ width:"100%", padding:"16px 0", borderRadius:14, fontWeight:800, fontSize:15, color:"white", border:"none", cursor: isValid?"pointer":"not-allowed", background: isValid?`linear-gradient(135deg,${BLUE},${BLUE2})`:"#c0cfe8", boxShadow: isValid?`0 6px 24px ${BLUE}45`:"none", transition:"all 0.2s", fontFamily:"'Cairo',sans-serif", marginBottom:12 }}
             >
               تسجيل الدخول
             </button>
-          </div>
 
-          <div className="text-center mb-1">
-            <button type="button" className="text-sm" style={{ color: BANK_BLUE }}>نسيت كلمة المرور</button>
-          </div>
-          <div className="text-center mb-2">
-            <span className="text-xs text-gray-500">ليس لديك حساب؟ </span>
-            <button type="button" className="text-xs font-bold" style={{ color: BANK_BLUE }} onClick={() => navigateTo("/register")}>
-              سجل الآن
-            </button>
-          </div>
-        </form>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <button type="button" onClick={() => navigateTo("/register")} style={{ background:"none", border:"none", color:BLUE, fontWeight:700, fontSize:12, cursor:"pointer", fontFamily:"'Cairo',sans-serif" }}>سجل الآن</button>
+              <button type="button" style={{ background:"none", border:"none", color:"#64748b", fontSize:12, cursor:"pointer", fontFamily:"'Cairo',sans-serif" }}>نسيت كلمة المرور؟</button>
+            </div>
+          </form>
+        </div>
       </div>
 
-      <div className="h-px bg-gray-100 mx-5" />
-
-      {/* Services Grid */}
-      <div className="px-4 pt-4 pb-6">
-        <div className="grid grid-cols-3 gap-x-2 gap-y-5">
-          {services.map((service, i) => (
-            <button key={i} className="flex flex-col items-center gap-2 text-center">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center text-2xl shadow-sm border border-gray-100" style={{ background: "#f8f9ff" }}>
-                {service.icon}
-              </div>
-              <span className="text-xs text-gray-700 leading-tight font-medium" style={{ fontSize: 10 }}>{service.label}</span>
+      {/* Services */}
+      <div style={{ padding: "20px 16px 8px" }}>
+        <h4 style={{ textAlign:"right", color:BLUE, fontSize:14, fontWeight:800, marginBottom:16 }}>خدماتنا</h4>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
+          {services.map((s,i) => (
+            <button key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8, padding:"14px 8px", borderRadius:16, border:"1.5px solid #eef2ff", background:"white", cursor:"pointer", fontFamily:"'Cairo',sans-serif", boxShadow:"0 2px 10px rgba(26,58,122,0.06)", transition:"all 0.2s" }}>
+              <div style={{ width:48, height:48, borderRadius:14, background:`linear-gradient(135deg,${BLUE}0f,${BLUE}1a)`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>{s.icon}</div>
+              <span style={{ fontSize:9.5, color:"#374151", fontWeight:600, lineHeight:1.3, textAlign:"center" }}>{s.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Dream section */}
-      <div className="py-6 px-5 flex items-center justify-between gap-4 relative overflow-hidden" style={{ background: "#e8f4fd" }}>
-        <div className="flex-1 text-right z-10">
-          <h2 className="text-lg font-bold mb-1" style={{ color: BANK_BLUE }}>حقق حلمك معنا</h2>
-          <p className="text-xs text-gray-600 mb-3 leading-relaxed">"يمكنك تحقيق كل أحلامك،<br />إذا كان لديك الشجاعة للسعي وراءها"</p>
-          <button className="text-xs text-white px-4 py-1.5 rounded font-semibold" style={{ background: BANK_BLUE }}>متابعة</button>
+      {/* Dream banner */}
+      <div style={{ margin:"16px 16px", borderRadius:20, overflow:"hidden", background:`linear-gradient(135deg,#e8f4fd,#f0f7ff)`, border:"1px solid #c7d9f7", display:"flex", alignItems:"center", gap:0 }}>
+        <div style={{ flex:1, padding:"20px 20px 20px 0", textAlign:"right" }}>
+          <h3 style={{ color:BLUE, fontSize:16, fontWeight:800, margin:"0 0 6px" }}>حقق حلمك معنا</h3>
+          <p style={{ color:"#475569", fontSize:12, lineHeight:1.6, margin:"0 0 14px" }}>"يمكنك تحقيق كل أحلامك، إذا كان لديك الشجاعة للسعي وراءها"</p>
+          <button style={{ background:`linear-gradient(135deg,${BLUE},${BLUE2})`, color:"white", border:"none", padding:"8px 18px", borderRadius:10, fontSize:12, fontWeight:700, cursor:"pointer", fontFamily:"'Cairo',sans-serif" }}>متابعة</button>
         </div>
-        <div className="text-6xl shrink-0">🧑‍💼</div>
-      </div>
-
-      {/* Tech section */}
-      <div className="px-5 pt-6 pb-4 relative overflow-hidden" style={{ background: "#2f9e9e" }}>
-        <h2 className="text-white font-bold text-base mb-3 text-right leading-snug">جعلت التكنولوجيا المصرفية أمرًا بسيطًا وفعالًا.</h2>
-        <div className="flex items-end gap-1 mt-4" style={{ height: 80 }}>
-          <div className="flex flex-col items-center"><div className="w-5 h-8 rounded-full" style={{ background: "#4caf50" }} /><div className="w-2 h-3" style={{ background: "#8B5E3C" }} /></div>
-          <div className="flex gap-0.5 items-end flex-1">
-            {[40, 56, 48, 64, 44, 52, 36].map((h, i) => <div key={i} className="flex-1 rounded-t" style={{ height: h, background: i % 2 === 0 ? "#f5a623" : "#fff", opacity: 0.85 }} />)}
-          </div>
-          <div className="text-xl mr-2">📱</div>
-        </div>
-        <div className="h-4 mt-0 -mx-5 flex items-center justify-center gap-3" style={{ background: "#1a5f5f" }}>
-          {Array.from({ length: 8 }).map((_, i) => <div key={i} className="h-0.5 w-4 bg-yellow-300 rounded" />)}
-        </div>
+        <div style={{ fontSize:64, padding:"0 16px" }}>🧑‍💼</div>
       </div>
 
       {/* Footer */}
-      <div className="px-5 py-4 text-center" style={{ background: BANK_BLUE }}>
-        <p className="text-blue-200 text-xs mb-2">حقوق النشر محفوظة لمصرف الأمان 2019©</p>
-        <div className="flex justify-center gap-3">
-          <button className="text-blue-200 text-xs underline">الشروط والأحكام</button>
-          <span className="text-blue-400">|</span>
-          <button className="text-blue-200 text-xs underline">المعلومات</button>
+      <div style={{ background:`linear-gradient(135deg,#0d2660,${BLUE})`, padding:"20px 16px", textAlign:"center", marginTop:8 }}>
+        <img src="/aman-bank-logo.png" alt="" style={{ height:28, filter:"brightness(0) invert(1)", opacity:0.7, marginBottom:12 }} />
+        <p style={{ color:"rgba(180,210,255,0.7)", fontSize:11, margin:"0 0 10px" }}>حقوق النشر محفوظة لمصرف الأمان 2019©</p>
+        <div style={{ display:"flex", justifyContent:"center", gap:16 }}>
+          {["الشروط والأحكام","المعلومات","تواصل معنا"].map(t => (
+            <button key={t} style={{ background:"none", border:"none", color:"rgba(180,210,255,0.65)", fontSize:11, cursor:"pointer", fontFamily:"'Cairo',sans-serif" }}>{t}</button>
+          ))}
         </div>
       </div>
     </div>

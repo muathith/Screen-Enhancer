@@ -1,13 +1,39 @@
 import { useState } from "react";
 import { useNavigate } from "@/components/TransitionContext";
 
-const BANK_BLUE = "#1a3a7a";
+const BLUE = "#1a3a7a";
+const BLUE2 = "#1e4db7";
 
 function FieldError({ msg }: { msg: string }) {
+  return <p style={{ color: "#ef4444", fontSize: 11, marginTop: 4, textAlign: "right", fontWeight: 600 }}>{msg}</p>;
+}
+
+function StepBar({ active }: { active: number }) {
+  const labels = ["بياناتك", "تسجيل الدخول", "التحقق"];
   return (
-    <p className="text-xs mt-1 text-right" style={{ color: "#dc2626" }}>
-      {msg}
-    </p>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 24px 8px", gap: 0 }}>
+      {labels.map((label, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", flex: i < labels.length - 1 ? 1 : "none" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0 }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: "50%",
+              background: i < active ? `linear-gradient(135deg, #10b981, #059669)` : i === active ? `linear-gradient(135deg, ${BLUE}, ${BLUE2})` : "#e2e8f0",
+              color: i <= active ? "white" : "#94a3b8",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 13, fontWeight: 800,
+              boxShadow: i <= active ? `0 4px 14px ${BLUE}40` : "none",
+              transition: "all 0.3s",
+            }}>
+              {i < active ? "✓" : i + 1}
+            </div>
+            <span style={{ fontSize: 9, fontWeight: 700, color: i <= active ? BLUE : "#94a3b8", letterSpacing: 0.2 }}>{label}</span>
+          </div>
+          {i < labels.length - 1 && (
+            <div style={{ flex: 1, height: 2, margin: "0 6px", marginBottom: 16, background: i < active ? "#10b981" : "#e2e8f0", borderRadius: 2, transition: "background 0.3s" }} />
+          )}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -19,143 +45,133 @@ export default function RegisterPage() {
   const [touched, setTouched] = useState<{ fullName?: boolean; phone?: boolean }>({});
 
   function validate(name: string, ph: string) {
-    const errs: { fullName?: string; phone?: string } = {};
-    if (!name.trim()) errs.fullName = "الاسم الكامل مطلوب";
-    else if (name.trim().length < 3) errs.fullName = "الاسم يجب أن يكون 3 أحرف على الأقل";
-    if (!ph.trim()) errs.phone = "رقم الهاتف مطلوب";
-    else if (!/^[0-9+\s\-]{7,15}$/.test(ph.trim())) errs.phone = "أدخل رقم هاتف صحيح";
-    return errs;
+    const e: { fullName?: string; phone?: string } = {};
+    if (!name.trim()) e.fullName = "الاسم الكامل مطلوب";
+    else if (name.trim().length < 3) e.fullName = "الاسم يجب أن يكون 3 أحرف على الأقل";
+    if (!ph.trim()) e.phone = "رقم الهاتف مطلوب";
+    else if (!/^[0-9+\s\-]{7,15}$/.test(ph.trim())) e.phone = "أدخل رقم هاتف صحيح";
+    return e;
   }
 
-  const handleBlur = (field: "fullName" | "phone") => {
-    setTouched(t => ({ ...t, [field]: true }));
-    setErrors(validate(fullName, phone));
-  };
+  const touch = (f: "fullName" | "phone") => { setTouched(t => ({ ...t, [f]: true })); setErrors(validate(fullName, phone)); };
+  const valid = Object.keys(validate(fullName, phone)).length === 0 && !!fullName && !!phone;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate(fullName, phone);
-    setErrors(errs);
-    setTouched({ fullName: true, phone: true });
-    if (Object.keys(errs).length === 0) {
-      navigateTo("/login");
-    }
+    setErrors(errs); setTouched({ fullName: true, phone: true });
+    if (!Object.keys(errs).length) navigateTo("/login");
   };
 
-  const isValid = Object.keys(validate(fullName, phone)).length === 0 && !!fullName && !!phone;
-
   return (
-    <div dir="rtl" className="min-h-screen bg-white" style={{ fontFamily: "'Cairo', sans-serif", maxWidth: 480, margin: "0 auto" }}>
+    <div dir="rtl" style={{ fontFamily: "'Cairo', sans-serif", maxWidth: 480, margin: "0 auto", minHeight: "100vh", background: "#f4f7ff" }}>
+
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
-        <button onClick={() => navigateBack()} className="text-gray-600 p-1">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
+      <nav style={{ background: "white", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", boxShadow: "0 2px 16px rgba(26,58,122,0.08)" }}>
+        <button onClick={() => navigateBack()} style={{ background: `${BLUE}12`, border: "none", width: 36, height: 36, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: BLUE }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: 18, height: 18 }}><path d="M9 18l6-6-6-6" /></svg>
         </button>
-        <div className="text-sm font-bold" style={{ color: BANK_BLUE }}>إنشاء حساب</div>
-        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 36 }} />
+        <span style={{ fontSize: 15, fontWeight: 800, color: BLUE }}>إنشاء حساب</span>
+        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 34 }} />
       </nav>
 
-      {/* Hero Banner */}
-      <div
-        className="h-24 flex items-center px-5"
-        style={{ background: `linear-gradient(135deg, ${BANK_BLUE} 0%, #2855b0 100%)` }}
-      >
-        <p className="text-white font-bold text-base">انضم إلى مصرف الأمان اليوم</p>
-      </div>
-
-      {/* Progress indicator */}
-      <div className="px-5 pt-4 pb-2">
-        <div className="flex items-center justify-center gap-2 mb-1">
-          {["بياناتك", "تسجيل الدخول", "التحقق"].map((label, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <div className="flex flex-col items-center gap-1">
-                <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
-                  style={{
-                    background: i === 0 ? BANK_BLUE : "#e2e8f0",
-                    color: i === 0 ? "white" : "#94a3b8",
-                  }}
-                >
-                  {i + 1}
-                </div>
-                <span className="text-xs" style={{ color: i === 0 ? BANK_BLUE : "#94a3b8", fontSize: 9 }}>
-                  {label}
-                </span>
-              </div>
-              {i < 2 && <div className="w-8 h-px mb-4" style={{ background: i === 0 ? BANK_BLUE : "#e2e8f0" }} />}
-            </div>
-          ))}
+      {/* Hero */}
+      <div style={{ position: "relative", overflow: "hidden", background: `linear-gradient(135deg, #0d2660, ${BLUE}, ${BLUE2})`, padding: "32px 24px 48px", textAlign: "right" }}>
+        <div style={{ position: "absolute", top: -30, left: -30, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.06)", animation: "ab-orb-drift 9s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", bottom: -20, right: -20, width: 120, height: 120, borderRadius: "50%", border: "1px dashed rgba(255,255,255,0.15)", animation: "ab-spin 20s linear infinite" }} />
+        <div style={{ fontSize: 36, marginBottom: 12 }} className="ab-float">👋</div>
+        <h2 style={{ color: "white", fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.4 }}>انضم إلى مصرف الأمان</h2>
+        <p style={{ color: "rgba(200,220,255,0.8)", fontSize: 13, marginTop: 6, marginBottom: 0 }}>سجل بياناتك وكن جزءاً من عائلتنا</p>
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
+          <svg viewBox="0 0 480 32" preserveAspectRatio="none" style={{ width: "100%", height: 32, display: "block" }}>
+            <path d="M0,16 C120,32 240,0 360,16 C420,24 460,8 480,16 L480,32 L0,32 Z" fill="#f4f7ff" />
+          </svg>
         </div>
       </div>
 
-      {/* Form */}
-      <div className="px-5 pt-4 pb-6">
-        <form onSubmit={handleSubmit} noValidate>
-          <div className="mb-6">
-            <label className="block text-xs font-bold text-right mb-1.5" style={{ color: BANK_BLUE }}>
-              الاسم الكامل <span style={{ color: "#dc2626" }}>*</span>
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={e => { setFullName(e.target.value); if (touched.fullName) setErrors(validate(e.target.value, phone)); }}
-              onBlur={() => handleBlur("fullName")}
-              placeholder="أدخل اسمك الكامل"
-              className="w-full text-right text-sm py-2 outline-none placeholder-gray-400 transition-all"
-              style={{ borderBottom: `1.5px solid ${touched.fullName && errors.fullName ? "#dc2626" : fullName ? BANK_BLUE : "#d1d5db"}`, background: "transparent", color: "#1a202c" }}
-            />
-            {touched.fullName && errors.fullName && <FieldError msg={errors.fullName} />}
-          </div>
+      {/* Stepper */}
+      <StepBar active={0} />
 
-          <div className="mb-6">
-            <label className="block text-xs font-bold text-right mb-1.5" style={{ color: BANK_BLUE }}>
-              رقم الهاتف <span style={{ color: "#dc2626" }}>*</span>
-            </label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={e => { setPhone(e.target.value); if (touched.phone) setErrors(validate(fullName, e.target.value)); }}
-              onBlur={() => handleBlur("phone")}
-              placeholder="09XXXXXXXX"
-              className="w-full text-right text-sm py-2 outline-none placeholder-gray-400 transition-all"
-              style={{ borderBottom: `1.5px solid ${touched.phone && errors.phone ? "#dc2626" : phone ? BANK_BLUE : "#d1d5db"}`, background: "transparent", color: "#1a202c" }}
-              dir="ltr"
-            />
-            {touched.phone && errors.phone && <FieldError msg={errors.phone} />}
-          </div>
+      {/* Form card */}
+      <div style={{ padding: "8px 16px 32px" }}>
+        <div className="ab-card" style={{ padding: 24 }}>
+          <form onSubmit={submit} noValidate>
 
-          <div
-            className="rounded-lg p-4 mb-6 text-right"
-            style={{ background: "#f0f7ff", border: "1px solid #c7d9f7" }}
-          >
-            <p className="text-xs leading-relaxed" style={{ color: BANK_BLUE }}>
-              🎁 بشرى سارة لعملاء مصرف الأمان — سجل في السحب وأربح جوائز نقدية وعينية مجزية
-            </p>
-          </div>
+            {/* Name field */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ color: "#ef4444", fontSize: 12 }}>*</span>
+                <label style={{ fontSize: 12, fontWeight: 700, color: BLUE }}>الاسم الكامل</label>
+              </div>
+              <div style={{ position: "relative" }}>
+                <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 16 }}>👤</div>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={e => { setFullName(e.target.value); if (touched.fullName) setErrors(validate(e.target.value, phone)); }}
+                  onBlur={() => touch("fullName")}
+                  placeholder="أدخل اسمك الكامل"
+                  style={{
+                    width: "100%", padding: "14px 46px 14px 14px", borderRadius: 14, border: `2px solid ${touched.fullName && errors.fullName ? "#ef4444" : fullName ? BLUE : "#e2e8f0"}`,
+                    background: touched.fullName && errors.fullName ? "#fff5f5" : fullName ? "#f0f4ff" : "#f8faff",
+                    fontSize: 14, fontFamily: "'Cairo', sans-serif", textAlign: "right", color: "#1a202c", outline: "none", transition: "all 0.2s", boxSizing: "border-box"
+                  }}
+                />
+              </div>
+              {touched.fullName && errors.fullName && <FieldError msg={errors.fullName} />}
+            </div>
 
-          <div className="flex justify-center">
+            {/* Phone field */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ color: "#ef4444", fontSize: 12 }}>*</span>
+                <label style={{ fontSize: 12, fontWeight: 700, color: BLUE }}>رقم الهاتف</label>
+              </div>
+              <div style={{ position: "relative" }}>
+                <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 16 }}>📱</div>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={e => { setPhone(e.target.value); if (touched.phone) setErrors(validate(fullName, e.target.value)); }}
+                  onBlur={() => touch("phone")}
+                  placeholder="09XXXXXXXX"
+                  dir="ltr"
+                  style={{
+                    width: "100%", padding: "14px 46px 14px 14px", borderRadius: 14, border: `2px solid ${touched.phone && errors.phone ? "#ef4444" : phone ? BLUE : "#e2e8f0"}`,
+                    background: touched.phone && errors.phone ? "#fff5f5" : phone ? "#f0f4ff" : "#f8faff",
+                    fontSize: 14, fontFamily: "'Cairo', sans-serif", textAlign: "left", color: "#1a202c", outline: "none", transition: "all 0.2s", boxSizing: "border-box"
+                  }}
+                />
+              </div>
+              {touched.phone && errors.phone && <FieldError msg={errors.phone} />}
+            </div>
+
+            {/* Info banner */}
+            <div style={{ background: `linear-gradient(135deg, ${BLUE}0a, ${BLUE2}14)`, border: `1px solid ${BLUE}20`, borderRadius: 14, padding: "14px 16px", marginBottom: 24, textAlign: "right" }}>
+              <p style={{ color: BLUE, fontSize: 12, lineHeight: 1.7, margin: 0 }}>
+                🎁 <strong>بشرى سارة!</strong> سجل في السحب السنوي وأربح جوائز نقدية بقيمة 5,000 دينار وأجهزة آيفون 16 برو ماكس
+              </p>
+            </div>
+
+            {/* Submit */}
             <button
               type="submit"
-              className="px-16 py-3 rounded font-bold text-white text-sm transition-all"
-              style={{ background: isValid ? BANK_BLUE : "#9eb0d4", minWidth: 200, cursor: isValid ? "pointer" : "not-allowed" }}
+              style={{
+                width: "100%", padding: "16px 0", borderRadius: 14, fontWeight: 800, fontSize: 15, color: "white", border: "none", cursor: valid ? "pointer" : "not-allowed",
+                background: valid ? `linear-gradient(135deg, ${BLUE}, ${BLUE2})` : "#c0cfe8",
+                boxShadow: valid ? `0 6px 24px ${BLUE}45` : "none", transition: "all 0.2s",
+                fontFamily: "'Cairo', sans-serif"
+              }}
             >
-              متابعة
+              متابعة ←
             </button>
-          </div>
 
-          <div className="text-center mt-4">
-            <span className="text-xs text-gray-500">لديك حساب؟ </span>
-            <button type="button" className="text-xs font-bold" style={{ color: BANK_BLUE }} onClick={() => navigateTo("/login")}>
-              سجل الدخول
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div className="px-5 py-3 text-center border-t border-gray-100">
-        <p className="text-gray-400 text-xs">© 2019 مصرف الأمان — جميع الحقوق محفوظة</p>
+            <div style={{ textAlign: "center", marginTop: 16 }}>
+              <span style={{ fontSize: 13, color: "#64748b" }}>لديك حساب؟ </span>
+              <button type="button" onClick={() => navigateTo("/login")} style={{ background: "none", border: "none", color: BLUE, fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'Cairo', sans-serif" }}>سجل الدخول</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

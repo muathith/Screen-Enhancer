@@ -1,253 +1,193 @@
 import { useNavigate } from "@/components/TransitionContext";
 
-const BANK_BLUE = "#1a3a7a";
+const BLUE = "#1a3a7a";
+const BLUE2 = "#1e4db7";
 const GOLD = "#c8970a";
-const GOLD_LIGHT = "#f5d06e";
-
-function StarIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-      <path d="M12 2l2.9 6.26L22 9.27l-5 5.14 1.18 7.09L12 18.3l-6.18 3.2L7 14.41 2 9.27l7.1-1.01L12 2z" />
-    </svg>
-  );
-}
+const GOLD_L = "#f5d06e";
 
 const prizes = [
   {
-    rank: "الجائزة الأولى",
-    rankNum: "1",
-    description: "50 جائزة مالية بقيمة 5,000 دينار ليبي لكل جائزة",
-    emoji: "🏆",
-    highlight: true,
-    total: "250,000 د.ل",
-    totalLabel: "إجمالي الجوائز",
+    num: "01", icon: "🏆",
+    title: "الجائزة الأولى",
+    desc: "50 جائزة نقدية بقيمة 5,000 دينار ليبي",
+    tag: "250,000 د.ل",
+    gold: true,
   },
   {
-    rank: "الجائزة الثانية",
-    rankNum: "2",
-    description: "25 جهاز آيفون 16 برو ماكس مقدم من رائد",
-    emoji: "📱",
-    highlight: false,
-    total: "25 جهاز",
-    totalLabel: "آيفون 16 Pro Max",
+    num: "02", icon: "📱",
+    title: "الجائزة الثانية",
+    desc: "25 جهاز آيفون 16 برو ماكس من رائد",
+    tag: "25 جهاز",
+    gold: false,
   },
   {
-    rank: "الجائزة الثالثة",
-    rankNum: "3",
-    description: "جوائز عينية قيمة ومتنوعة للفائزين",
-    emoji: "🎁",
-    highlight: false,
-    total: "جوائز",
-    totalLabel: "عينية متنوعة",
+    num: "03", icon: "🎁",
+    title: "الجائزة الثالثة",
+    desc: "جوائز عينية قيمة ومتنوعة للفائزين",
+    tag: "جوائز متنوعة",
+    gold: false,
   },
+];
+
+const steps = [
+  { n: "١", text: "سجل اسمك ورقم هاتفك" },
+  { n: "٢", text: "تحقق برمز OTP المرسل لهاتفك" },
+  { n: "٣", text: "أكمل بيانات حسابك البنكي" },
+  { n: "٤", text: "انتظر السحب وكن من الفائزين!" },
 ];
 
 export default function LandingPage() {
   const { navigateTo } = useNavigate();
 
   return (
-    <div
-      dir="rtl"
-      className="min-h-screen bg-white"
-      style={{ fontFamily: "'Cairo', sans-serif", maxWidth: 480, margin: "0 auto" }}
-    >
-      {/* Navbar */}
-      <nav
-        className="flex items-center justify-between px-4 py-3 sticky top-0 z-50"
-        style={{ background: BANK_BLUE, direction: "ltr" }}
-      >
-        <div className="flex flex-col gap-1">
-          {[...Array(3)].map((_, i) => (
-            <span key={i} className="block w-5 h-0.5 bg-white/70 rounded" />
-          ))}
+    <div dir="rtl" style={{ fontFamily: "'Cairo', sans-serif", maxWidth: 480, margin: "0 auto", background: "#f4f7ff", minHeight: "100vh" }}>
+
+      {/* ── Navbar ── */}
+      <nav style={{ background: BLUE, direction: "ltr", position: "sticky", top: 0, zIndex: 50 }}
+        className="flex items-center justify-between px-4 py-3 shadow-lg">
+        <div className="flex flex-col gap-1 cursor-pointer">
+          {[0,1,2].map(i => <span key={i} style={{ display: "block", width: 22, height: 2.5, background: "rgba(255,255,255,0.7)", borderRadius: 2 }} />)}
         </div>
-        <img
-          src="/aman-bank-logo.png"
-          alt="مصرف الأمان"
-          style={{ height: 32, filter: "brightness(0) invert(1)" }}
-        />
+        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 34, filter: "brightness(0) invert(1)" }} />
       </nav>
 
-      {/* Hero */}
-      <div
-        className="relative overflow-hidden text-center pt-8 pb-6 px-5"
-        style={{
-          background: `linear-gradient(160deg, ${BANK_BLUE} 0%, #1e4db7 55%, #2855b0 100%)`,
-        }}
-      >
-        {/* Floating stars */}
-        {[
-          { top: 10, left: 12, op: 0.3, sz: 14 },
-          { top: 24, left: 60, op: 0.2, sz: 10 },
-          { top: 8, left: 80, op: 0.4, sz: 16 },
-          { top: 40, left: 5, op: 0.25, sz: 12 },
-          { top: 55, left: 88, op: 0.3, sz: 11 },
-        ].map((s, i) => (
-          <div
-            key={i}
-            className="absolute"
-            style={{ top: `${s.top}%`, left: `${s.left}%`, opacity: s.op, color: GOLD_LIGHT, fontSize: s.sz }}
-          >
-            ★
-          </div>
+      {/* ── Hero ── */}
+      <div style={{ position: "relative", overflow: "hidden", background: `linear-gradient(160deg, #0d2660 0%, ${BLUE} 40%, ${BLUE2} 70%, #2f63d4 100%)`, paddingBottom: 40 }}>
+        {/* Animated orbs */}
+        <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.05)", animation: "ab-orb-drift 8s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", bottom: 20, left: -60, width: 260, height: 260, borderRadius: "50%", background: `rgba(200,151,10,0.08)`, animation: "ab-orb-drift 11s ease-in-out infinite reverse" }} />
+        {/* Spinning ring */}
+        <div style={{ position: "absolute", top: 10, left: 20, width: 120, height: 120, borderRadius: "50%", border: "1px dashed rgba(255,255,255,0.12)", animation: "ab-spin 25s linear infinite" }} />
+
+        {/* Star sparkles */}
+        {[{t:8,l:15,d:0},{t:18,l:70,d:1.2},{t:5,l:82,d:0.6},{t:35,l:8,d:2},{t:28,l:55,d:1.8}].map((s,i) => (
+          <div key={i} style={{ position: "absolute", top: `${s.t}%`, left: `${s.l}%`, color: GOLD_L, fontSize: 12, animation: `ab-star-twinkle ${2+s.d}s ease-in-out infinite`, animationDelay: `${s.d}s` }}>★</div>
         ))}
 
         {/* Badge */}
-        <div
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-5"
-          style={{ background: "rgba(255,255,255,0.15)", color: GOLD_LIGHT, border: `1px solid ${GOLD_LIGHT}40` }}
-        >
-          <StarIcon />
-          بشرى سارة لعملاء مصرف الأمان
-          <StarIcon />
-        </div>
-
-        {/* Trophy */}
-        <div className="flex justify-center mb-4">
-          <div
-            className="relative w-28 h-28 rounded-full flex items-center justify-center shadow-2xl"
-            style={{ background: `linear-gradient(135deg, ${GOLD_LIGHT}, ${GOLD})` }}
-          >
-            <div className="text-6xl">🏆</div>
-            <div
-              className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shadow-lg"
-              style={{ background: BANK_BLUE, color: GOLD_LIGHT, border: `2px solid ${GOLD_LIGHT}` }}
-            >
-              WIN
-            </div>
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: 32 }}>
+          <div className="ab-glass" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 20px", borderRadius: 40, color: GOLD_L, fontSize: 12, fontWeight: 700, animation: "ab-slide-up 0.5s ease both" }}>
+            ✦ بشرى سارة لعملاء مصرف الأمان ✦
           </div>
         </div>
 
-        <h1 className="text-white text-2xl font-black mb-2 leading-tight">
-          سجل وأربح جوائز
-          <br />
-          <span style={{ color: GOLD_LIGHT }}>نقدية وعينية مجزية!</span>
-        </h1>
-        <p className="text-blue-200 text-sm mb-6">
-          سجل الآن في السحب السنوي لمصرف الأمان
-          <br />
-          وكن واحداً من الفائزين بجوائزنا القيمة
-        </p>
+        {/* Trophy */}
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 24, marginBottom: 20 }}>
+          <div style={{ position: "relative", width: 130, height: 130 }}>
+            {/* Glow rings */}
+            {[0,1].map(i => (
+              <div key={i} style={{ position: "absolute", inset: i*14, borderRadius: "50%", border: `2px solid rgba(200,151,10,${0.3-i*0.1})`, animation: `ab-ring 2.4s ease-out infinite`, animationDelay: `${i*0.6}s` }} />
+            ))}
+            <div className="ab-pulse-glow" style={{ position: "absolute", inset: 14, borderRadius: "50%", background: `linear-gradient(135deg, ${GOLD_L} 0%, ${GOLD} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 46 }}>
+              <span className="ab-trophy-bounce" style={{ display: "block" }}>🏆</span>
+            </div>
+            <div style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: BLUE, border: `2px solid ${GOLD_L}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: 900, color: GOLD_L }}>WIN</div>
+          </div>
+        </div>
 
-        {/* CTA button */}
-        <button
-          onClick={() => navigateTo("/register")}
-          className="w-full py-4 rounded-2xl font-black text-base shadow-2xl transition-all active:scale-95 mb-3"
-          style={{
-            background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
-            color: BANK_BLUE,
-            boxShadow: `0 8px 32px ${GOLD}60`,
-          }}
-        >
-          ✨ سجل الآن واربح ✨
-        </button>
+        {/* Headline */}
+        <div style={{ textAlign: "center", padding: "0 24px" }}>
+          <h1 style={{ color: "white", fontSize: 26, fontWeight: 900, margin: 0, lineHeight: 1.35 }}>
+            سجل وأربح جوائز<br />
+            <span className="ab-shimmer-gold">نقدية وعينية مجزية!</span>
+          </h1>
+          <p style={{ color: "rgba(200,220,255,0.85)", fontSize: 13, marginTop: 10, marginBottom: 28, lineHeight: 1.7 }}>
+            سجل الآن في السحب السنوي لمصرف الأمان<br />وكن واحداً من الفائزين بجوائزنا القيمة
+          </p>
 
-        <button
-          onClick={() => navigateTo("/login")}
-          className="text-sm text-blue-200 underline underline-offset-2"
-        >
-          لديك حساب؟ سجل الدخول
-        </button>
+          {/* Gold CTA */}
+          <button
+            onClick={() => navigateTo("/register")}
+            className="ab-btn-gold ab-pulse-glow"
+            style={{ width: "100%", padding: "16px 0", borderRadius: 16, fontWeight: 900, fontSize: 16, color: BLUE, border: "none", cursor: "pointer", letterSpacing: 0.3, marginBottom: 12 }}
+          >
+            ✨ سجل الآن واربح ✨
+          </button>
+          <button onClick={() => navigateTo("/login")} style={{ background: "none", border: "none", color: "rgba(180,210,255,0.85)", fontSize: 13, cursor: "pointer", textDecoration: "underline" }}>
+            لديك حساب؟ سجل الدخول
+          </button>
+        </div>
 
-        {/* Wave divider */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 480 32" preserveAspectRatio="none" className="w-full" style={{ height: 32, display: "block" }}>
-            <path d="M0,16 C80,32 160,0 240,16 C320,32 400,0 480,16 L480,32 L0,32 Z" fill="white" />
+        {/* Wave */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
+          <svg viewBox="0 0 480 40" preserveAspectRatio="none" style={{ width: "100%", height: 40, display: "block" }}>
+            <path d="M0,20 C80,40 160,0 240,20 C320,40 400,0 480,20 L480,40 L0,40 Z" fill="#f4f7ff" />
           </svg>
         </div>
       </div>
 
-      {/* Prizes cards */}
-      <div className="px-4 pt-6 pb-4">
-        <div className="text-center mb-5">
-          <h2 className="text-lg font-black mb-1" style={{ color: BANK_BLUE }}>جوائزنا القيمة</h2>
-          <p className="text-gray-500 text-xs">سجل الآن للمشاركة في السحب</p>
+      {/* ── Stats strip ── */}
+      <div style={{ display: "flex", background: "white", margin: "0 16px", borderRadius: 20, marginTop: -12, padding: "16px 0", boxShadow: "0 4px 30px rgba(26,58,122,0.12)" }}>
+        {[{val:"75+",lab:"فائز محتمل"},{val:"250K",lab:"دينار جوائز"},{val:"3",lab:"فئات جوائز"}].map((s,i) => (
+          <div key={i} style={{ flex: 1, textAlign: "center", borderRight: i<2 ? "1px solid #eef2ff" : "none" }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: BLUE }}>{s.val}</div>
+            <div style={{ fontSize: 10, color: "#64748b" }}>{s.lab}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Prizes ── */}
+      <div style={{ padding: "24px 16px 8px" }}>
+        <div style={{ textAlign: "center", marginBottom: 16 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 900, color: BLUE, margin: 0 }}>جوائزنا القيمة</h2>
+          <p style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>سجل الآن للمشاركة في السحب</p>
         </div>
 
-        <div className="flex flex-col gap-4">
-          {prizes.map((prize, i) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {prizes.map((p, i) => (
             <div
               key={i}
-              className="rounded-2xl p-4 flex items-center gap-4 shadow-sm"
+              className="ab-card ab-card-hover"
               style={{
-                background: prize.highlight ? `linear-gradient(135deg, ${BANK_BLUE}08, ${GOLD}15)` : "#f8f9ff",
-                border: prize.highlight ? `2px solid ${GOLD}50` : "1px solid #e8edf8",
+                padding: "16px 18px",
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                border: p.gold ? `1.5px solid ${GOLD}50` : "1.5px solid #eef2ff",
+                background: p.gold ? `linear-gradient(135deg, #fffbeb, #fff9e6)` : "white",
+                animation: `ab-slide-up 0.5s ease ${i*0.1}s both`,
               }}
             >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shrink-0"
-                style={{
-                  background: prize.highlight
-                    ? `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`
-                    : `linear-gradient(135deg, ${BANK_BLUE}20, ${BANK_BLUE}35)`,
-                  color: BANK_BLUE,
-                }}
-              >
-                {prize.rankNum}
+              <div style={{ fontSize: 10, fontWeight: 900, color: p.gold ? GOLD : "#94a3b8", minWidth: 24, textAlign: "center", letterSpacing: 1 }}>{p.num}</div>
+              <div style={{ fontSize: 36 }}>{p.icon}</div>
+              <div style={{ flex: 1, textAlign: "right" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: p.gold ? GOLD : "#64748b", marginBottom: 2 }}>{p.title}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: BLUE, lineHeight: 1.4 }}>{p.desc}</div>
               </div>
-
-              <div className="text-3xl shrink-0">{prize.emoji}</div>
-
-              <div className="flex-1 text-right">
-                <div
-                  className="text-xs font-bold mb-0.5 uppercase tracking-wide"
-                  style={{ color: prize.highlight ? GOLD : "#64748b" }}
-                >
-                  {prize.rank}
-                </div>
-                <div className="text-sm font-semibold leading-snug" style={{ color: BANK_BLUE }}>
-                  {prize.description}
-                </div>
+              <div style={{ background: p.gold ? `linear-gradient(135deg,${GOLD},${GOLD_L})` : `${BLUE}18`, borderRadius: 10, padding: "6px 10px", textAlign: "center", minWidth: 60 }}>
+                <div style={{ fontSize: 11, fontWeight: 900, color: p.gold ? BLUE : BLUE }}>{p.tag}</div>
               </div>
-
-              {prize.highlight && (
-                <div className="shrink-0 text-right">
-                  <div className="text-xs font-black" style={{ color: GOLD }}>{prize.total}</div>
-                  <div className="text-xs text-gray-400">{prize.totalLabel}</div>
-                </div>
-              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* How it works */}
-      <div className="mx-4 rounded-2xl p-5 mb-4" style={{ background: `${BANK_BLUE}08`, border: `1px solid ${BANK_BLUE}20` }}>
-        <h3 className="text-center font-black mb-4" style={{ color: BANK_BLUE }}>كيف تشارك؟</h3>
-        <div className="flex flex-col gap-3">
-          {[
-            { step: "1", text: "سجل اسمك ورقم هاتفك" },
-            { step: "2", text: "تحقق من رمز الـ OTP المرسل لهاتفك" },
-            { step: "3", text: "أكمل بيانات حسابك البنكي" },
-            { step: "4", text: "انتظر نتائج السحب وكن من الفائزين!" },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center gap-3 flex-row-reverse">
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center font-black text-sm shrink-0 text-white"
-                style={{ background: BANK_BLUE }}
-              >
-                {item.step}
+      {/* ── How it works ── */}
+      <div style={{ margin: "16px 16px", background: `linear-gradient(135deg, ${BLUE}08, ${BLUE2}12)`, borderRadius: 24, padding: 20, border: `1px solid ${BLUE}18` }}>
+        <h3 style={{ textAlign: "center", fontWeight: 900, color: BLUE, fontSize: 16, margin: "0 0 20px" }}>كيف تشارك؟</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {steps.map((s, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, flexDirection: "row-reverse" }}>
+              <div style={{ width: 36, height: 36, borderRadius: "50%", background: `linear-gradient(135deg, ${BLUE}, ${BLUE2})`, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 900, flexShrink: 0, boxShadow: `0 4px 12px ${BLUE}40` }}>
+                {s.n}
               </div>
-              <div className="h-px flex-1" style={{ background: `${BANK_BLUE}20` }} />
-              <p className="text-sm text-gray-700 font-medium text-right">{item.text}</p>
+              {i < steps.length - 1 && <div style={{ position: "absolute" }} />}
+              <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, ${BLUE}30, transparent)` }} />
+              <p style={{ fontSize: 13, color: "#374151", fontWeight: 600, margin: 0, textAlign: "right", flex: 2 }}>{s.text}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Bottom CTA */}
-      <div className="px-4 pb-8">
+      {/* ── Bottom CTA ── */}
+      <div style={{ padding: "8px 16px 32px" }}>
         <button
           onClick={() => navigateTo("/register")}
-          className="w-full py-4 rounded-2xl font-black text-white text-base shadow-lg transition-all active:scale-95"
-          style={{
-            background: `linear-gradient(135deg, ${BANK_BLUE} 0%, #2855b0 100%)`,
-            boxShadow: `0 8px 24px ${BANK_BLUE}50`,
-          }}
+          style={{ width: "100%", padding: "17px 0", borderRadius: 18, fontWeight: 900, fontSize: 15, color: "white", border: "none", cursor: "pointer", background: `linear-gradient(135deg, ${BLUE} 0%, ${BLUE2} 100%)`, boxShadow: `0 8px 28px ${BLUE}50` }}
         >
           ابدأ التسجيل الآن
         </button>
-        <p className="text-center text-xs text-gray-400 mt-3">
+        <p style={{ textAlign: "center", fontSize: 11, color: "#94a3b8", marginTop: 14 }}>
           © 2019 مصرف الأمان — جميع الحقوق محفوظة
         </p>
       </div>
