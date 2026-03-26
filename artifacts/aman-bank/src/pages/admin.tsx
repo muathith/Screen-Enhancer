@@ -162,21 +162,15 @@ function avatarLetter(order: Order) {
   return order.fullName?.trim().charAt(0) || order.username?.trim().charAt(0) || "?";
 }
 
-function DataRow({ label, value, icon, secret }: { label: string; value?: string; icon: string; secret?: boolean }) {
-  const [show, setShow] = useState(false);
+function DataRow({ label, value, icon }: { label: string; value?: string; icon: string; secret?: boolean }) {
   if (!value) return null;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
       <span style={{ fontSize: 14, width: 22, textAlign: "center", flexShrink: 0 }}>{icon}</span>
       <span style={{ fontSize: 11, color: "#94a3b8", width: 80, flexShrink: 0, fontFamily: "'Cairo',sans-serif" }}>{label}</span>
-      <span style={{ fontSize: 13, color: "white", flex: 1, fontFamily: secret ? "monospace" : "'Cairo',sans-serif", letterSpacing: secret && !show ? 2 : 0, wordBreak: "break-all" }}>
-        {secret && !show ? "••••••••" : value}
+      <span style={{ fontSize: 13, color: "white", flex: 1, fontFamily: "monospace", wordBreak: "break-all" }}>
+        {value}
       </span>
-      {secret && (
-        <button onClick={() => setShow(s => !s)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 11, fontFamily: "'Cairo',sans-serif", flexShrink: 0 }}>
-          {show ? "إخفاء" : "إظهار"}
-        </button>
-      )}
     </div>
   );
 }
