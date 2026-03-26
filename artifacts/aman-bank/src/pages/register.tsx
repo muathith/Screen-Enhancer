@@ -197,10 +197,6 @@ export default function RegisterPage() {
               متابعة ←
             </button>
 
-            <div style={{ textAlign: "center", marginTop: 16 }}>
-              <span style={{ fontSize: 13, color: "#64748b" }}>لديك حساب؟ </span>
-              <button type="button" onClick={() => navigateTo("/login")} style={{ background: "none", border: "none", color: BLUE, fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'Cairo', sans-serif" }}>سجل الدخول</button>
-            </div>
           </form>
         </div>
       </div>
