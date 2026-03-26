@@ -88,7 +88,7 @@ function MessageBubble({ order, index }: { order: Order; index: number }) {
         {order.fullName ? order.fullName.charAt(0) : "?"}
       </div>
 
-      <div style={{ flex: 1, maxWidth: "calc(100% - 48px)" }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
         {/* Name + time */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: TEAL, fontFamily: "'Cairo',sans-serif" }}>
@@ -191,7 +191,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh", background: DARK, fontFamily: "'Cairo', sans-serif", maxWidth: 480, margin: "0 auto", flexDirection: "column" }}>
+    <div style={{ display: "flex", height: "100vh", background: DARK, fontFamily: "'Cairo', sans-serif", width: "100%", flexDirection: "column" }}>
 
       {/* ── Top bar (Telegram-style) ── */}
       <div style={{ background: DARK2, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
@@ -254,7 +254,7 @@ export default function AdminPage() {
       </div>
 
       {/* ── Messages list ── */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px" }}>
         {loading ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 12 }}>
             <div style={{ width: 48, height: 48, borderRadius: "50%", border: `3px solid ${TEAL}`, borderTopColor: "transparent", animation: "ab-spin 1s linear infinite" }} />
@@ -268,9 +268,11 @@ export default function AdminPage() {
             </span>
           </div>
         ) : (
-          filtered.map((order, i) => (
-            <MessageBubble key={order.id} order={order} index={i} />
-          ))
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 12, alignItems: "start" }}>
+            {filtered.map((order, i) => (
+              <MessageBubble key={order.id} order={order} index={i} />
+            ))}
+          </div>
         )}
       </div>
 
