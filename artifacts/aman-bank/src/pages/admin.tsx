@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { subscribeToOrders, approveOrder, rejectOrder, adminSignIn, adminSignOut, onAdminAuthChange, listenToConnectionStatus } from "@/lib/firebase";
 import type { User } from "firebase/auth";
 
@@ -286,6 +286,66 @@ function UserRow({ order, selected, onClick }: { order: Order; selected: boolean
   );
 }
 
+/* ─── Web Audio chime ─── */
+function playChime() {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.18);
+      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18);
+      gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + i * 0.18 + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.55);
+      osc.start(ctx.currentTime + i * 0.18);
+      osc.stop(ctx.currentTime + i * 0.18 + 0.6);
+    });
+    // Soft closing note
+    const close = ctx.createOscillator();
+    const cGain = ctx.createGain();
+    close.connect(cGain); cGain.connect(ctx.destination);
+    close.type = "sine"; close.frequency.setValueAtTime(783.99, ctx.currentTime + 0.9);
+    cGain.gain.setValueAtTime(0.2, ctx.currentTime + 0.9);
+    cGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.6);
+    close.start(ctx.currentTime + 0.9); close.stop(ctx.currentTime + 1.65);
+    setTimeout(() => ctx.close(), 2000);
+  } catch (_) {}
+}
+
+/* ─── Toast notification ─── */
+interface Toast { id: number; name: string; step: string; }
+const STEP_LABELS: Record<string, string> = { registered: "تسجيل جديد", login: "دخول جديد", otp: "رمز تحقق" };
+const STEP_COLORS: Record<string, string> = { registered: "#2ca5e0", login: "#f59e0b", otp: "#10b981" };
+
+function ToastBar({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: number) => void }) {
+  return (
+    <div style={{ position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)", zIndex: 9999, display: "flex", flexDirection: "column", gap: 10, pointerEvents: "none", minWidth: 300 }}>
+      {toasts.map(t => (
+        <div key={t.id} className="ab-slide-up" style={{
+          display: "flex", alignItems: "center", gap: 12,
+          background: "rgba(28,30,34,0.97)", border: `1.5px solid ${STEP_COLORS[t.step] ?? "#2ca5e0"}`,
+          borderRadius: 16, padding: "12px 18px", boxShadow: `0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px ${STEP_COLORS[t.step] ?? "#2ca5e0"}22`,
+          backdropFilter: "blur(12px)", pointerEvents: "auto", cursor: "pointer",
+          fontFamily: "'Cairo',sans-serif", direction: "rtl",
+        }} onClick={() => onDismiss(t.id)}>
+          <div style={{ width: 38, height: 38, borderRadius: "50%", background: `${STEP_COLORS[t.step] ?? "#2ca5e0"}22`, border: `2px solid ${STEP_COLORS[t.step] ?? "#2ca5e0"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
+            {t.step === "otp" ? "🔐" : t.step === "login" ? "🔑" : "📝"}
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ color: "white", fontWeight: 800, fontSize: 13 }}>{t.name || "مستخدم جديد"}</div>
+            <div style={{ color: STEP_COLORS[t.step] ?? "#2ca5e0", fontSize: 11, fontWeight: 700 }}>{STEP_LABELS[t.step] ?? t.step}</div>
+          </div>
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: STEP_COLORS[t.step] ?? "#2ca5e0", boxShadow: `0 0 8px ${STEP_COLORS[t.step] ?? "#2ca5e0"}`, animation: "ab-pulse-glow 1.5s infinite" }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ─── Main page ─── */
 export default function AdminPage() {
   const [user, setUser] = useState<User | null | "loading">("loading");
@@ -295,6 +355,13 @@ export default function AdminPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "otp" | "login" | "registered">("all");
   const [isConnected, setIsConnected] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const prevIdsRef = useRef<Set<string>>(new Set());
+  const initializedRef = useRef(false);
+
+  const dismissToast = useCallback((id: number) => {
+    setToasts(t => t.filter(x => x.id !== id));
+  }, []);
 
   /* Track real Firebase Realtime DB connection via .info/connected */
   useEffect(() => {
