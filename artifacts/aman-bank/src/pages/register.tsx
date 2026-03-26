@@ -79,13 +79,40 @@ export default function RegisterPage() {
         <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 52 }} />
       </nav>
 
-      {/* Hero */}
-      <div style={{ position: "relative", overflow: "hidden", background: `linear-gradient(135deg, #0d2660, ${BLUE}, ${BLUE2})`, padding: "32px 24px 48px", textAlign: "right" }}>
-        <div style={{ position: "absolute", top: -30, left: -30, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.06)", animation: "ab-orb-drift 9s ease-in-out infinite" }} />
-        <div style={{ position: "absolute", bottom: -20, right: -20, width: 120, height: 120, borderRadius: "50%", border: "1px dashed rgba(255,255,255,0.15)", animation: "ab-spin 20s linear infinite" }} />
-        <div style={{ fontSize: 36, marginBottom: 12 }} className="ab-float">👋</div>
-        <h2 style={{ color: "white", fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.4 }}>انضم إلى مصرف الأمان</h2>
-        <p style={{ color: "rgba(200,220,255,0.8)", fontSize: 13, marginTop: 6, marginBottom: 0 }}>سجل بياناتك وكن جزءاً من عائلتنا</p>
+      {/* Hero banner */}
+      <div style={{ position: "relative", overflow: "hidden", minHeight: 200 }}>
+        {/* Photo */}
+        <img
+          src="/corporate.jpg"
+          alt=""
+          aria-hidden="true"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%" }}
+        />
+        {/* Gradient overlay */}
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, rgba(13,38,96,0.90) 0%, rgba(26,58,122,0.82) 50%, rgba(30,77,183,0.78) 100%)` }} />
+
+        {/* Decorative elements */}
+        <div style={{ position: "absolute", top: -30, left: -30, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.04)", animation: "ab-orb-drift 9s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", bottom: 20, right: -20, width: 120, height: 120, borderRadius: "50%", border: "1px dashed rgba(255,255,255,0.12)", animation: "ab-spin 20s linear infinite" }} />
+
+        {/* Goals person cutout */}
+        <img
+          src="/goals.png"
+          alt=""
+          aria-hidden="true"
+          style={{ position: "absolute", bottom: 0, left: 0, height: 190, objectFit: "contain", objectPosition: "bottom left", mixBlendMode: "screen", pointerEvents: "none" }}
+        />
+
+        {/* Content */}
+        <div style={{ position: "relative", zIndex: 1, padding: "32px 24px 52px", textAlign: "right" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(200,151,10,0.18)", border: "1px solid rgba(200,151,10,0.35)", borderRadius: 20, padding: "4px 14px", marginBottom: 14 }}>
+            <span style={{ color: "#f5d06e", fontSize: 11, fontWeight: 700 }}>✦ سجل الآن واربح جوائز قيمة ✦</span>
+          </div>
+          <h2 style={{ color: "white", fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.4 }}>انضم إلى مصرف الأمان</h2>
+          <p style={{ color: "rgba(200,220,255,0.82)", fontSize: 13, marginTop: 6, marginBottom: 0, lineHeight: 1.7 }}>سجل بياناتك وكن جزءاً من عائلتنا</p>
+        </div>
+
+        {/* Wave */}
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
           <svg viewBox="0 0 480 32" preserveAspectRatio="none" style={{ width: "100%", height: 32, display: "block" }}>
             <path d="M0,16 C120,32 240,0 360,16 C420,24 460,8 480,16 L480,32 L0,32 Z" fill="#f4f7ff" />
