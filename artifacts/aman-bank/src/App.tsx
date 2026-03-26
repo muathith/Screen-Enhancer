@@ -7,6 +7,7 @@ import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import OtpPage from "@/pages/otp";
+import AdminPage from "@/pages/admin";
 import { TransitionProvider } from "@/components/TransitionContext";
 
 const queryClient = new QueryClient();
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/otp" component={OtpPage} />
+      <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>
   );
