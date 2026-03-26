@@ -62,7 +62,7 @@ export default function LoginPage() {
             <Search size={16} />
           </button>
         </div>
-        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 34 }} />
+        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 52 }} />
       </nav>
 
       {/* Drawer */}

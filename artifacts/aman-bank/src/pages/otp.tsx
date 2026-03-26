@@ -99,7 +99,7 @@ export default function OtpPage() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width:18, height:18 }}><path d="M9 18l6-6-6-6" /></svg>
         </button>
         <span style={{ fontSize:15, fontWeight:800, color:BLUE }}>رمز التحقق</span>
-        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height:34 }} />
+        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 52 }} />
       </nav>
 
       {/* Hero */}

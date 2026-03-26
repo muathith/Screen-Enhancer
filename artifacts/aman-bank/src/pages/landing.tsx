@@ -48,7 +48,7 @@ export default function LandingPage() {
         <div className="flex flex-col gap-1 cursor-pointer">
           {[0,1,2].map(i => <span key={i} style={{ display: "block", width: 22, height: 2.5, background: "rgba(255,255,255,0.7)", borderRadius: 2 }} />)}
         </div>
-        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 34, filter: "brightness(0) invert(1)" }} />
+        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 52, filter: "brightness(0) invert(1)" }} />
       </nav>
 
       {/* ── Hero ── */}
