@@ -19,6 +19,12 @@ import {
   type Auth,
   type User,
 } from "firebase/auth";
+import {
+  getDatabase,
+  ref as rtdbRef,
+  onValue,
+  type Database,
+} from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBSRLFN8DXH24hdFeZuj6RxsKt9_dceFJk",
@@ -34,6 +40,7 @@ const firebaseConfig = {
 let app: FirebaseApp;
 let db: Firestore;
 let auth: Auth;
+let rtdb: Database;
 
 if (typeof window !== "undefined") {
   if (!getApps().length) {
@@ -43,6 +50,7 @@ if (typeof window !== "undefined") {
   }
   db = getFirestore(app);
   auth = getAuth(app);
+  rtdb = getDatabase(app);
 }
 
 /* ── Auth exports ── */
@@ -137,6 +145,15 @@ export function subscribeToOrders(callback: (docs: any[]) => void) {
   const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
   return onSnapshot(q, (snap) => {
     callback(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  });
+}
+
+/* ── Realtime Database connection status ── */
+
+export function listenToConnectionStatus(callback: (connected: boolean) => void): () => void {
+  const connectedRef = rtdbRef(rtdb, ".info/connected");
+  return onValue(connectedRef, (snap) => {
+    callback(snap.val() === true);
   });
 }
 

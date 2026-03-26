@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { subscribeToOrders, approveOrder, rejectOrder, adminSignIn, adminSignOut, onAdminAuthChange } from "@/lib/firebase";
+import { subscribeToOrders, approveOrder, rejectOrder, adminSignIn, adminSignOut, onAdminAuthChange, listenToConnectionStatus } from "@/lib/firebase";
 import type { User } from "firebase/auth";
 
 function AdminLogin() {
@@ -294,6 +294,13 @@ export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "otp" | "login" | "registered">("all");
+  const [isConnected, setIsConnected] = useState(false);
+
+  /* Track real Firebase Realtime DB connection via .info/connected */
+  useEffect(() => {
+    const unsub = listenToConnectionStatus((connected) => setIsConnected(connected));
+    return () => unsub();
+  }, []);
 
   /* Listen for Firebase auth state */
   useEffect(() => {
@@ -373,10 +380,17 @@ export default function AdminPage() {
             </button>
           ))}
         </div>
-        {/* Live dot */}
+        {/* Live dot — powered by Firebase RTDB .info/connected */}
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: GREEN, boxShadow: `0 0 8px ${GREEN}`, animation: "ab-pulse-glow 2s infinite" }} />
-          <span style={{ color: "#475569", fontSize: 11 }}>مباشر</span>
+          <div style={{
+            width: 8, height: 8, borderRadius: "50%",
+            background: isConnected ? GREEN : "#ef4444",
+            boxShadow: `0 0 8px ${isConnected ? GREEN : "#ef4444"}`,
+            animation: isConnected ? "ab-pulse-glow 2s infinite" : "none",
+          }} />
+          <span style={{ color: isConnected ? GREEN : "#ef4444", fontSize: 11, fontWeight: 700 }}>
+            {isConnected ? "متصل" : "غير متصل"}
+          </span>
         </div>
         {/* Signed-in email + logout */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
