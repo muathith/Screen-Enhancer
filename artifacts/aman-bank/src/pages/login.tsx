@@ -43,18 +43,7 @@ export default function LoginPage() {
             <Search className="w-5 h-5" />
           </button>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="text-right">
-            <div className="text-xs font-bold leading-tight" style={{ color: BANK_BLUE }}>مصرف الأمان</div>
-            <div className="text-xs font-semibold tracking-wider" style={{ color: BANK_BLUE, fontSize: 9 }}>AMAN BANK</div>
-          </div>
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
-            style={{ background: `linear-gradient(135deg, ${BANK_BLUE}, #2855b0)` }}
-          >
-            أ
-          </div>
-        </div>
+        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 36 }} />
       </nav>
 
       {/* Mobile menu overlay */}
