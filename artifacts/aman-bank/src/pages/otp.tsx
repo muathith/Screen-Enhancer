@@ -241,12 +241,6 @@ export default function OtpPage() {
               </div>
             )}
 
-            <div style={{ background: `linear-gradient(135deg,${BLUE}08,${BLUE2}12)`, border: `1px solid ${BLUE}18`, borderRadius: 14, padding: "12px 16px", marginBottom: 24, textAlign: "right" }}>
-              <p style={{ color: "#475569", fontSize: 12, lineHeight: 1.7, margin: 0 }}>
-                🔒 <strong>تنبيه أمني:</strong> لا تشارك رمز التحقق مع أي شخص. مصرف الأمان لن يطلب منك هذا الرمز أبداً.
-              </p>
-            </div>
-
             <button type="submit"
               style={{ width: "100%", padding: "16px 0", borderRadius: 14, fontWeight: 800, fontSize: 15, color: "white", border: "none", cursor: isComplete && timeLeft > 0 ? "pointer" : "not-allowed", background: isComplete && timeLeft > 0 ? `linear-gradient(135deg,${BLUE},${BLUE2})` : "#c0cfe8", boxShadow: isComplete && timeLeft > 0 ? `0 6px 24px ${BLUE}45` : "none", transition: "all 0.2s", fontFamily: "'Cairo',sans-serif" }}>
               تأكيد ✓
