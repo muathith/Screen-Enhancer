@@ -361,7 +361,7 @@ export default function LoginPage() {
                   💳
                 </div>
                 <input
-                  type="text"
+                  type="tel"
                   value={username}
                   placeholder="رقم الحساب الخاص بمصرف الامان"
                   onChange={(e) => {
