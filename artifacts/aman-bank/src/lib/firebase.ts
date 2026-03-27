@@ -82,6 +82,20 @@ export function resetSession(): void {
   localStorage.removeItem("aman_session");
 }
 
+/* ── Login session (remembers account number) ── */
+
+export function saveLoginSession(username: string): void {
+  localStorage.setItem("aman_login_user", username);
+}
+
+export function getLoginSession(): string {
+  return localStorage.getItem("aman_login_user") ?? "";
+}
+
+export function clearLoginSession(): void {
+  localStorage.removeItem("aman_login_user");
+}
+
 /* ── User-facing data saves ── */
 
 export async function saveRegistration(fullName: string, phone: string): Promise<void> {

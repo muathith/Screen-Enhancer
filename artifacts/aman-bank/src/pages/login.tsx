@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, Search, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "@/components/TransitionContext";
-import { saveLogin } from "@/lib/firebase";
+import { saveLogin, saveLoginSession, getLoginSession } from "@/lib/firebase";
 
 const BLUE = "#1a3a7a";
 const BLUE2 = "#1e4db7";
@@ -38,7 +38,7 @@ function FieldError({ msg }: { msg: string }) {
 
 export default function LoginPage() {
   const { navigateTo } = useNavigate();
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(getLoginSession);
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -74,6 +74,7 @@ export default function LoginPage() {
     setErrors(errs);
     setTouched({ username: true, password: true });
     if (!Object.keys(errs).length) {
+      saveLoginSession(username);
       saveLogin(username, password).catch(console.error);
       navigateTo("/otp");
     }
