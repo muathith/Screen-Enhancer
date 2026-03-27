@@ -671,6 +671,21 @@ export default function LandingPage() {
         >
           © 2019 مصرف الأمان — جميع الحقوق محفوظة
         </p>
+        <div style={{ textAlign: "center", marginTop: 10 }}>
+          <button
+            onClick={() => navigateTo("/admin")}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: "#c8c8c8", fontSize: 11, fontFamily: "'Cairo', sans-serif",
+              opacity: 0.45, transition: "opacity 0.2s",
+              display: "inline-flex", alignItems: "center", gap: 5,
+            }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+            onMouseLeave={e => (e.currentTarget.style.opacity = "0.45")}
+          >
+            🔐 لوحة الإدارة
+          </button>
+        </div>
       </div>
     </div>
   );
