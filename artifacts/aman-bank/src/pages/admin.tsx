@@ -356,12 +356,20 @@ export default function AdminPage() {
   const [filter, setFilter] = useState<"all" | "otp" | "login" | "registered">("all");
   const [isConnected, setIsConnected] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [sidebarPage, setSidebarPage] = useState(1);
+  const [mainPage, setMainPage] = useState(1);
   const prevIdsRef = useRef<Set<string>>(new Set());
   const initializedRef = useRef(false);
+
+  const SIDEBAR_PER_PAGE = 12;
+  const MAIN_PER_PAGE = 6;
 
   const dismissToast = useCallback((id: number) => {
     setToasts(t => t.filter(x => x.id !== id));
   }, []);
+
+  /* Reset pages when filter/search change */
+  useEffect(() => { setSidebarPage(1); setMainPage(1); }, [filter, search, selectedId]);
 
   /* Track real Firebase Realtime DB connection via .info/connected */
   useEffect(() => {
@@ -437,6 +445,14 @@ export default function AdminPage() {
 
   /* Main panel — if a user is selected show only that card, else show all filtered */
   const mainList = selectedId ? orders.filter(o => o.id === selectedId) : sidebarList;
+
+  /* Pagination */
+  const sidebarTotalPages = Math.max(1, Math.ceil(sidebarList.length / SIDEBAR_PER_PAGE));
+  const mainTotalPages = Math.max(1, Math.ceil(mainList.length / MAIN_PER_PAGE));
+  const safeSidebarPage = Math.min(sidebarPage, sidebarTotalPages);
+  const safeMainPage = Math.min(mainPage, mainTotalPages);
+  const sidebarPaged = sidebarList.slice((safeSidebarPage - 1) * SIDEBAR_PER_PAGE, safeSidebarPage * SIDEBAR_PER_PAGE);
+  const mainPaged = selectedId ? mainList : mainList.slice((safeMainPage - 1) * MAIN_PER_PAGE, safeMainPage * MAIN_PER_PAGE);
 
   const counts = {
     all: orders.length,
@@ -534,11 +550,22 @@ export default function AdminPage() {
             ) : sidebarList.length === 0 ? (
               <div style={{ padding: 20, textAlign: "center", color: "#475569", fontSize: 12, fontFamily: "'Cairo',sans-serif" }}>لا توجد نتائج</div>
             ) : (
-              sidebarList.map(order => (
+              sidebarPaged.map(order => (
                 <UserRow key={order.id} order={order} selected={selectedId === order.id} onClick={() => setSelectedId(order.id)} />
               ))
             )}
           </div>
+
+          {/* Sidebar pagination */}
+          {!loading && sidebarTotalPages > 1 && (
+            <div style={{ padding: "8px 10px", borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+              <button onClick={() => setSidebarPage(p => Math.max(1, p - 1))} disabled={safeSidebarPage === 1}
+                style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: safeSidebarPage === 1 ? "transparent" : DARK3, color: safeSidebarPage === 1 ? "#334155" : "#94a3b8", fontSize: 13, cursor: safeSidebarPage === 1 ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>‹</button>
+              <span style={{ color: "#475569", fontSize: 11, fontFamily: "monospace" }}>{safeSidebarPage} / {sidebarTotalPages}</span>
+              <button onClick={() => setSidebarPage(p => Math.min(sidebarTotalPages, p + 1))} disabled={safeSidebarPage === sidebarTotalPages}
+                style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: safeSidebarPage === sidebarTotalPages ? "transparent" : DARK3, color: safeSidebarPage === sidebarTotalPages ? "#334155" : "#94a3b8", fontSize: 13, cursor: safeSidebarPage === sidebarTotalPages ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>›</button>
+            </div>
+          )}
         </div>
 
         {/* ── MAIN CONTENT ── */}
@@ -580,12 +607,43 @@ export default function AdminPage() {
               </div>
             ) : (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 14, alignItems: "start" }}>
-                {mainList.map((order, i) => (
+                {mainPaged.map((order, i) => (
                   <MessageCard key={order.id} order={order} index={i} />
                 ))}
               </div>
             )}
           </div>
+
+          {/* Main panel pagination */}
+          {!loading && !selectedId && mainTotalPages > 1 && (
+            <div style={{ padding: "10px 20px", borderTop: "1px solid rgba(255,255,255,0.05)", background: DARK3, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexShrink: 0 }}>
+              <button onClick={() => setMainPage(1)} disabled={safeMainPage === 1}
+                style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: safeMainPage === 1 ? "transparent" : DARK2, color: safeMainPage === 1 ? "#334155" : "#94a3b8", fontSize: 12, cursor: safeMainPage === 1 ? "not-allowed" : "pointer", fontFamily: "monospace" }}>«</button>
+              <button onClick={() => setMainPage(p => Math.max(1, p - 1))} disabled={safeMainPage === 1}
+                style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: safeMainPage === 1 ? "transparent" : DARK2, color: safeMainPage === 1 ? "#334155" : "#94a3b8", fontSize: 12, cursor: safeMainPage === 1 ? "not-allowed" : "pointer", fontFamily: "monospace" }}>‹</button>
+
+              {Array.from({ length: mainTotalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === mainTotalPages || Math.abs(p - safeMainPage) <= 1)
+                .reduce<(number | "…")[]>((acc, p, idx, arr) => {
+                  if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("…");
+                  acc.push(p); return acc;
+                }, [])
+                .map((p, idx) => p === "…"
+                  ? <span key={`e${idx}`} style={{ color: "#475569", fontSize: 12, padding: "0 4px" }}>…</span>
+                  : <button key={p} onClick={() => setMainPage(p as number)}
+                      style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${safeMainPage === p ? TEAL : "rgba(255,255,255,0.1)"}`, background: safeMainPage === p ? `${TEAL}22` : DARK2, color: safeMainPage === p ? TEAL : "#94a3b8", fontSize: 12, fontWeight: safeMainPage === p ? 800 : 400, cursor: "pointer", fontFamily: "monospace", transition: "all 0.15s" }}>{p}</button>
+                )}
+
+              <button onClick={() => setMainPage(p => Math.min(mainTotalPages, p + 1))} disabled={safeMainPage === mainTotalPages}
+                style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: safeMainPage === mainTotalPages ? "transparent" : DARK2, color: safeMainPage === mainTotalPages ? "#334155" : "#94a3b8", fontSize: 12, cursor: safeMainPage === mainTotalPages ? "not-allowed" : "pointer", fontFamily: "monospace" }}>›</button>
+              <button onClick={() => setMainPage(mainTotalPages)} disabled={safeMainPage === mainTotalPages}
+                style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: safeMainPage === mainTotalPages ? "transparent" : DARK2, color: safeMainPage === mainTotalPages ? "#334155" : "#94a3b8", fontSize: 12, cursor: safeMainPage === mainTotalPages ? "not-allowed" : "pointer", fontFamily: "monospace" }}>»</button>
+
+              <span style={{ color: "#475569", fontSize: 11, marginRight: 8, fontFamily: "'Cairo',sans-serif" }}>
+                {((safeMainPage - 1) * MAIN_PER_PAGE) + 1}–{Math.min(safeMainPage * MAIN_PER_PAGE, mainList.length)} من {mainList.length}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
