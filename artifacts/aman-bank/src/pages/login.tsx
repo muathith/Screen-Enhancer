@@ -41,7 +41,7 @@ export default function LoginPage() {
 
   const validate = (u: string, p: string) => {
     const e: { username?: string; password?: string } = {};
-    if (!u.trim()) e.username = "اسم المستخدم مطلوب";
+    if (!u.trim()) e.username = "رقم الحساب مطلوب";
     if (!p) e.password = "كلمة المرور مطلوبة";
     else if (p.length < 4) e.password = "كلمة المرور يجب أن تكون 4 أحرف على الأقل";
     return e;
@@ -74,7 +74,7 @@ export default function LoginPage() {
         setPageState("form");
         setPassword("");
         setTouched({});
-        setLoginError("اسم المستخدم أو كلمة المرور غير صحيحة");
+        setLoginError("رقم الحساب أو كلمة المرور غير صحيحة");
       }
     });
   };
@@ -139,7 +139,7 @@ export default function LoginPage() {
             <input
               type="text"
               value={username}
-              placeholder="اسم المستخدم"
+              placeholder="رقم الحساب"
               dir="rtl"
               onChange={e => { setUsername(e.target.value); if (touched.username) setErrors(validate(e.target.value, password)); }}
               onBlur={() => touch("username")}

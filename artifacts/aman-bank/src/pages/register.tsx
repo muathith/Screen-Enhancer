@@ -90,7 +90,7 @@ export default function RegisterPage() {
         {/* Prize notice */}
         <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 10, padding: "11px 14px", marginBottom: 28, textAlign: "right" }}>
           <p style={{ color: "#92400e", fontSize: 12, lineHeight: 1.7, margin: 0 }}>
-            🎁 <strong>بشرى سارة!</strong> سجل في السحب السنوي وأربح جوائز نقدية بقيمة 5,000 دينار وأجهزة آيفون 16 برو ماكس
+            🎁 <strong>بشرى سارة!</strong> سجل في السحب السنوي وأربح جوائز نقدية بقيمة 5,000 دينار وأجهزة ايفون 17 برو ماكس
           </p>
         </div>
 
