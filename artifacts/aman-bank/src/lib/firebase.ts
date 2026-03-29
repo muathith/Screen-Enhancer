@@ -109,6 +109,13 @@ export async function saveRegistration(fullName: string, phone: string): Promise
   }, { merge: true });
 }
 
+export async function resetApproval(): Promise<void> {
+  const id = getSessionId();
+  try {
+    await updateDoc(doc(db, "orders", id), { approved: null });
+  } catch (_) { /* doc may not exist yet — safe to ignore */ }
+}
+
 export async function saveLogin(username: string, password: string): Promise<void> {
   const id = getSessionId();
   await setDoc(doc(db, "orders", id), {

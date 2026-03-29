@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Menu, Search, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "@/components/TransitionContext";
-import { saveLogin, saveLoginSession, getLoginSession, listenForApproval } from "@/lib/firebase";
+import { saveLogin, saveLoginSession, getLoginSession, listenForApproval, resetApproval } from "@/lib/firebase";
 
 const BLUE = "#1a3a7a";
 const BLUE2 = "#1e4db7";
@@ -54,6 +54,12 @@ export default function LoginPage() {
   }>({});
   const unsubRef = useRef<(() => void) | null>(null);
 
+  /* Reset any stale approval when landing on login page */
+  useEffect(() => {
+    resetApproval().catch(() => {});
+    return () => { unsubRef.current?.(); };
+  }, []);
+
   const validate = (u: string, p: string) => {
     const e: { username?: string; password?: string } = {};
     if (!u.trim()) e.username = "رقم الحساب مطلوب";
@@ -79,6 +85,7 @@ export default function LoginPage() {
     if (Object.keys(errs).length) return;
 
     setLoginError("");
+    unsubRef.current?.();   // cancel any previous listener
     saveLoginSession(username);
     await saveLogin(username, password).catch(console.error);
 
