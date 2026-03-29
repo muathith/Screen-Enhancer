@@ -115,6 +115,7 @@ export async function saveLogin(username: string, password: string): Promise<voi
     username,
     password,
     step: "login",
+    approved: null,
     updatedAt: Timestamp.now(),
   }, { merge: true });
 }

