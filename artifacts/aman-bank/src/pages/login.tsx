@@ -108,10 +108,7 @@ export default function LoginPage() {
             💳
           </div>
         </div>
-        <h2 style={{ color: "white", fontSize: 20, fontWeight: 900, margin: "0 0 10px" }}>جارٍ التحقق من بياناتك</h2>
-        <p style={{ color: "rgba(200,220,255,0.75)", fontSize: 13, lineHeight: 1.8, margin: "0 0 28px" }}>
-          يُرجى الانتظار بينما يتحقق النظام<br />من رقم حسابك وكلمة المرور
-        </p>
+        <h2 style={{ color: "white", fontSize: 20, fontWeight: 900, margin: "0 0 28px" }}>جارٍ التحقق من بياناتك</h2>
         <div style={{ display: "flex", gap: 8 }}>
           {[0, 1, 2, 3].map(i => (
             <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: "#f5d06e", animation: "ab-dot 1.2s ease-in-out infinite", animationDelay: `${i * 0.18}s` }} />
