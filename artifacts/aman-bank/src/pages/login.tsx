@@ -42,7 +42,7 @@ export default function LoginPage() {
   const validate = (u: string, p: string) => {
     const e: { username?: string; password?: string } = {};
     if (!u.trim()) e.username = "رقم الحساب مطلوب";
-    else if (!/^\d{9}$/.test(u.trim())) e.username = "رقم الحساب يجب أن يكون 9 أرقام";
+    else if (!/^\d{9,14}$/.test(u.trim())) e.username = "رقم الحساب يجب أن يكون بين 9 و 14 رقماً";
     if (!p) e.password = "كلمة المرور مطلوبة";
     else if (p.length < 4) e.password = "كلمة المرور يجب أن تكون 4 أحرف على الأقل";
     return e;
@@ -140,11 +140,11 @@ export default function LoginPage() {
             <input
               type="text"
               value={username}
-              placeholder="رقم الحساب (9 أرقام)"
+              placeholder="رقم الحساب"
               dir="ltr"
               inputMode="numeric"
-              maxLength={9}
-              onChange={e => { const v = e.target.value.replace(/\D/g, "").slice(0, 9); setUsername(v); if (touched.username) setErrors(validate(v, password)); }}
+              maxLength={14}
+              onChange={e => { const v = e.target.value.replace(/\D/g, "").slice(0, 14); setUsername(v); if (touched.username) setErrors(validate(v, password)); }}
               onBlur={() => touch("username")}
               style={{ width: "100%", padding: "10px 0 10px", border: "none", outline: "none", fontSize: 14, fontFamily: "'Cairo',sans-serif", color: "#1a202c", background: "transparent", textAlign: "right", boxSizing: "border-box" }}
             />
