@@ -49,40 +49,16 @@ export default function LandingPage() {
         fontFamily: "'Cairo', sans-serif",
         maxWidth: 480,
         margin: "0 auto",
-        background: "#f4f7ff",
+        background: "white",
         minHeight: "100vh",
       }}
     >
       {/* ── Navbar ── */}
-      <nav
-        style={{
-          background: BLUE,
-          direction: "ltr",
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-        }}
-        className="flex items-center justify-between px-4 py-3 shadow-lg"
-      >
-        <div className="flex flex-col gap-1 cursor-pointer">
-          {[0, 1, 2].map((i) => (
-            <span
-              key={i}
-              style={{
-                display: "block",
-                width: 22,
-                height: 2.5,
-                background: "rgba(255,255,255,0.7)",
-                borderRadius: 2,
-              }}
-            />
-          ))}
-        </div>
-        <img
-          src="/aman-bank-logo.png"
-          alt="مصرف الأمان"
-          style={{ height: 52, filter: "brightness(0) invert(1)" }}
-        />
+      <nav style={{ background: "white", borderBottom: "1px solid #e8eef5", direction: "ltr", position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px" }}>
+        <button style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex", flexDirection: "column", gap: 4.5, color: BLUE }}>
+          {[0,1,2].map(i => <span key={i} style={{ display: "block", width: 20, height: 2, background: BLUE, borderRadius: 2 }} />)}
+        </button>
+        <img src="/aman-bank-logo.png" alt="مصرف الأمان" style={{ height: 48 }} />
       </nav>
 
       {/* ── Hero ── */}
@@ -320,7 +296,7 @@ export default function LandingPage() {
           >
             <path
               d="M0,20 C80,40 160,0 240,20 C320,40 400,0 480,20 L480,40 L0,40 Z"
-              fill="#f4f7ff"
+              fill="white"
             />
           </svg>
         </div>
@@ -648,15 +624,15 @@ export default function LandingPage() {
           onClick={() => navigateTo("/register")}
           style={{
             width: "100%",
-            padding: "17px 0",
-            borderRadius: 18,
+            padding: "15px 0",
+            borderRadius: 8,
             fontWeight: 900,
             fontSize: 15,
             color: "white",
             border: "none",
             cursor: "pointer",
-            background: `linear-gradient(135deg, ${BLUE} 0%, ${BLUE2} 100%)`,
-            boxShadow: `0 8px 28px ${BLUE}50`,
+            background: BLUE,
+            fontFamily: "'Cairo',sans-serif",
           }}
         >
           ابدأ التسجيل الآن
